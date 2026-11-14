@@ -1,0 +1,27 @@
+DANH SÁCH POSTER - tên file cần đặt cho từng phim
+Thư mục: src/main/resources/static/images/posters/   (ảnh dọc, tỉ lệ 2:3, khoảng 300x450 trở lên, đuôi .jpg)
+Cách thay ảnh thật: tải poster của phim, đổi tên đúng như cột 'Tên file', chép đè vào thư mục trên, Build > Rebuild Project rồi Ctrl+F5.
+Hoặc dùng đường dẫn mạng: trong SQL, thay N'phim01.jpg' bằng N'https://.../poster.jpg' (web đã hỗ trợ cả hai cách).
+
+Tên file     Mã     Trạng thái   Tên phim
+--------------------------------------------------------------------------------
+phim01.jpg   P001   DANG_CHIEU   Mai
+phim02.jpg   P002   DANG_CHIEU   Lật Mặt 7: Một Điều Ước
+phim03.jpg   P003   DANG_CHIEU   Đào, Phở và Piano
+phim04.jpg   P004   DANG_CHIEU   Quỷ Cẩu
+phim05.jpg   P005   DANG_CHIEU   Những Mảnh Ghép Cảm Xúc 2 (Inside Out 2)
+phim06.jpg   P006   DANG_CHIEU   Hành Tinh Cát: Phần Hai (Dune: Part Two)
+phim07.jpg   P007   DANG_CHIEU   Deadpool & Wolverine
+phim08.jpg   P008   DANG_CHIEU   Đất Rừng Phương Nam
+phim09.jpg   P009   DANG_CHIEU   Godzilla x Kong: Đế Chế Mới
+phim10.jpg   P010   DANG_CHIEU   Mắt Biếc
+phim11.jpg   P011   DANG_CHIEU   Kung Fu Panda 4
+phim12.jpg   P012   DANG_CHIEU   Kẻ Ăn Hồn
+phim13.jpg   P013   DANG_CHIEU   Kẻ Trộm Mặt Trăng 4 (Despicable Me 4)
+phim14.jpg   P014   DANG_CHIEU   Avatar: Dòng Chảy Của Nước
+phim15.jpg   P015   SAP_CHIEU    Cám
+phim16.jpg   P016   SAP_CHIEU    Nhà Bà Nữ
+phim17.jpg   P017   SAP_CHIEU    Oppenheimer
+phim18.jpg   P018   SAP_CHIEU    Hành Trình Của Moana 2 (Moana 2)
+phim19.jpg   P019   NGUNG_CHIEU  Bố Già
+phim20.jpg   P020   NGUNG_CHIEU  Avengers: Hồi Kết (Avengers: Endgame)
