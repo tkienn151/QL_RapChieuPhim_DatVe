@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Quản lý tài khoản')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h2 class="mb-0">Quản lý Tài Khoản</h2>
+        <a th:href="@{/admin/taikhoan/them}" class="btn btn-primary">+ Thêm Nhân Viên Mới</a>
+    </div>
+
+    <form th:action="@{/admin/taikhoan}" method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="tuKhoa" class="form-control" placeholder="Tìm theo tên đăng nhập, họ tên, email..." th:value="${tuKhoa}">
+        </div>
+        <div class="col-md-2">
+            <select name="vaiTro" class="form-select">
+                <option value="">-- Tất cả vai trò --</option>
+                <option th:each="vt : ${vaiTroList}" th:value="${vt}" th:text="${vt}" th:selected="${vaiTro == vt}"></option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="sapXep" class="form-select">
+                <option value="id" th:selected="${sapXep == 'id'}">Sắp xếp: ID</option>
+                <option value="tenDangNhap" th:selected="${sapXep == 'tenDangNhap'}">Tên đăng nhập</option>
+                <option value="hoTen" th:selected="${sapXep == 'hoTen'}">Họ tên</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="tang" class="form-select">
+                <option value="true" th:selected="${tang == null or tang}">Tăng dần</option>
+                <option value="false" th:selected="${tang != null and !tang}">Giảm dần</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-dark flex-fill">Lọc</button>
+            <a th:href="@{/admin/taikhoan}" class="btn btn-outline-secondary">Xóa lọc</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên đăng nhập</th>
+                <th>Họ tên</th>
+                <th>Email / SĐT</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th style="min-width: 280px;">Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="nd : ${dsTaiKhoan.content}">
+                <td th:text="${nd.id}"></td>
+                <td class="fw-semibold" th:text="${nd.tenDangNhap}"></td>
+                <td th:text="${nd.hoTen}"></td>
+                <td class="small">
+                    <div th:if="${nd.email != null}" th:text="${nd.email}"></div>
+                    <div th:if="${nd.soDienThoai != null}" class="text-muted" th:text="${nd.soDienThoai}"></div>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${nd.vaiTro.name() == 'QUAN_TRI'} ? 'bg-danger' : (${nd.vaiTro.name() == 'NHAN_VIEN'} ? 'bg-primary' : 'bg-secondary')"
+                          th:text="${nd.vaiTro}"></span>
+                </td>
+                <td>
+                    <span th:if="${nd.hoatDong}" class="badge bg-success">Hoạt động</span>
+                    <span th:unless="${nd.hoatDong}" class="badge bg-danger">Bị khóa</span>
+                </td>
+                <td>
+                    <div class="d-flex flex-wrap gap-1 align-items-center">
+                        <form th:action="@{/admin/taikhoan/vai-tro/{id}(id=${nd.id})}" method="post" class="d-inline-flex gap-1">
+                            <select name="vaiTro" class="form-select form-select-sm" style="width: auto;">
+                                <option th:each="vt : ${vaiTroList}" th:value="${vt}" th:text="${vt}" th:selected="${nd.vaiTro == vt}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Đổi</button>
+                        </form>
+                        <form th:action="@{/admin/taikhoan/khoa/{id}(id=${nd.id})}" method="post" class="d-inline"
+                              data-xac-nhan="Bạn có chắc chắn muốn thay đổi trạng thái tài khoản này?">
+                            <button type="submit" class="btn btn-sm" th:classappend="${nd.hoatDong} ? 'btn-warning' : 'btn-success'"
+                                    th:text="${nd.hoatDong} ? 'Khóa' : 'Mở khóa'">
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/taikhoan/xoa/{id}(id=${nd.id})}" method="post" class="d-inline"
+                              data-xac-nhan="Bạn có chắc chắn muốn xóa tài khoản chưa phát sinh giao dịch này?">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${dsTaiKhoan.empty}">
+                <td colspan="7" class="text-center text-muted py-3">Không tìm thấy tài khoản nào phù hợp.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/phantrang :: phanTrang(${dsTaiKhoan}, ${duongDan != null ? duongDan : '/admin/taikhoan'})}"></div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

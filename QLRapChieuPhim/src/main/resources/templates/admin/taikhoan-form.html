@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Thêm Tài Khoản')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Thêm Tài Khoản Nhân Viên</h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/taikhoan/them}" th:object="${nguoiDung}" method="post">
+                        <div class="mb-3">
+                            <label for="tenDangNhap" class="form-label">Tên đăng nhập (*)</label>
+                            <input type="text" class="form-control" th:field="*{tenDangNhap}" minlength="3" maxlength="50"
+                                   pattern="[A-Za-z0-9_.]{3,50}" title="3-50 ký tự: chữ không dấu, số, dấu _ hoặc ."
+                                   autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false" required>
+                            <div class="form-text">3-50 ký tự, chỉ gồm chữ không dấu, số, dấu gạch dưới (_) và dấu chấm (.).</div>
+                            <div th:replace="~{fragments/loi-truong :: loiTruong('tenDangNhap')}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="matKhau" class="form-label">Mật khẩu (*)</label>
+                            <input type="password" id="matKhau" class="form-control" name="matKhau" minlength="6" maxlength="50" autocomplete="new-password" required>
+                            <div th:replace="~{fragments/loi-truong :: loiTruong('matKhau')}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hoTen" class="form-label">Họ và tên (*)</label>
+                            <input type="text" class="form-control" th:field="*{hoTen}" maxlength="100" autocomplete="name" required>
+                            <div th:replace="~{fragments/loi-truong :: loiTruong('hoTen')}"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" th:field="*{email}" maxlength="100" autocomplete="email" placeholder="nhanvien@cinema.vn">
+                                <div th:replace="~{fragments/loi-truong :: loiTruong('email')}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="soDienThoai" class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" th:field="*{soDienThoai}" maxlength="15" autocomplete="tel" placeholder="09xxxxxxxx">
+                                <div th:replace="~{fragments/loi-truong :: loiTruong('soDienThoai')}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="vaiTro" class="form-label">Vai trò</label>
+                            <select class="form-select" th:field="*{vaiTro}">
+                                <option value="NHAN_VIEN">Nhân viên bán vé</option>
+                                <option value="QUAN_TRI">Quản trị viên</option>
+                            </select>
+                            <div th:replace="~{fragments/loi-truong :: loiTruong('vaiTro')}"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/admin/taikhoan}" class="btn btn-secondary">Quay lại</a>
+                            <button type="submit" class="btn btn-primary">Lưu tài khoản</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
