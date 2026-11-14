@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head(${phim.tenPhim})}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4" th:with="tt=${phim.trangThai.name()},
+      laNoiBo=${session.nguoiDung != null and session.nguoiDung.vaiTro.name() != 'KHACH_HANG'}">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small mb-0">
+            <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none"><i class="bi bi-house-door me-1"></i>Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/phim}" class="text-decoration-none">Phim</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${phim.tenPhim}">Tên phim</li>
+        </ol>
+    </nav>
+
+    <div class="phim-detail-hero mb-5">
+        <div class="row g-4 align-items-start">
+            <div class="col-md-4 col-lg-3">
+                <div class="detail-poster-frame">
+                    <img class="poster img-fluid w-100"
+                         th:src="${#strings.isEmpty(phim.poster)} ? @{/images/no-poster.svg(v=2)} : ((${#strings.startsWith(phim.poster, 'http')} or ${#strings.startsWith(phim.poster, '/')}) ? ${phim.poster} : @{/images/posters/{f}(f=${phim.poster},v=2)})"
+                         th:alt="${phim.tenPhim}" fetchpriority="high" width="400" height="600">
+                </div>
+            </div>
+
+            <div class="col-md-8 col-lg-9">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="badge rounded-pill px-3 py-2"
+                          th:classappend="${tt == 'DANG_CHIEU' ? 'bg-success' : (tt == 'SAP_CHIEU' ? 'bg-warning text-dark' : 'bg-secondary')}"
+                          th:text="${tt == 'DANG_CHIEU' ? 'Đang chiếu' : (tt == 'SAP_CHIEU' ? 'Sắp chiếu' : 'Ngừng chiếu')}">Đang chiếu</span>
+                    <span class="badge rounded-pill bg-danger px-3 py-2" th:text="${phim.theLoai.tenTheLoai}">Thể loại</span>
+                    <span class="badge rounded-pill bg-dark border border-secondary px-3 py-2">
+                        Mã phim: <span th:text="${phim.maPhim}">P001</span>
+                    </span>
+                </div>
+
+                <h1 class="display-6 fw-bold mb-3" th:text="${phim.tenPhim}">Tên phim</h1>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-sm-4">
+                        <div class="meta-grid-item">
+                            <div class="small text-white-50"><i class="bi bi-clock text-danger me-1"></i>Thời lượng</div>
+                            <div class="fw-bold" th:text="|${phim.thoiLuong} phút|">131 phút</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4">
+                        <div class="meta-grid-item">
+                            <div class="small text-white-50"><i class="bi bi-calendar-check text-danger me-1"></i>Khởi chiếu</div>
+                            <div class="fw-bold" th:text="${phim.ngayKhoiChieu != null} ? ${#temporals.format(phim.ngayKhoiChieu, 'dd/MM/yyyy')} : 'Chưa cập nhật'">01/01/2026</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4" th:if="${phim.daoDien != null}">
+                        <div class="meta-grid-item">
+                            <div class="small text-white-50"><i class="bi bi-camera-reels text-danger me-1"></i>Đạo diễn</div>
+                            <div class="fw-bold text-truncate" th:text="${phim.daoDien}" th:title="${phim.daoDien}">Đạo diễn</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3" th:if="${phim.dienVien != null}">
+                    <div class="small text-white-50 mb-1"><i class="bi bi-people-fill text-danger me-1"></i>Diễn viên chính</div>
+                    <div class="fw-medium" th:text="${phim.dienVien}">Diễn viên</div>
+                </div>
+
+                <div class="mb-4">
+                    <h2 class="h6 text-uppercase text-white-50 fw-bold mb-2">Nội dung phim</h2>
+                    <p class="mb-0 lh-lg text-light opacity-90"
+                       th:text="${phim.moTa != null and !phim.moTa.isBlank()} ? ${phim.moTa} : 'Chưa có mô tả cho bộ phim này.'">Mô tả phim.</p>
+                </div>
+
+                <a href="#lichChieuSection" class="btn btn-danger rounded-pill px-4 fw-semibold">
+                    <i class="bi bi-ticket-perforated me-2"></i>Chọn suất chiếu bên dưới
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <section id="lichChieuSection">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end mb-3">
+            <div>
+                <h2 class="h4 section-title mb-1">Lịch chiếu &amp; Đặt vé</h2>
+                <p class="text-muted small mb-0" th:if="${!dsNgayChieu.isEmpty() and !laNoiBo}">
+                    Bấm vào khung giờ chiếu mong muốn để chuyển sang bước chọn ghế ngồi.
+                </p>
+                <p class="text-muted small mb-0" th:if="${!dsNgayChieu.isEmpty() and laNoiBo}">
+                    Tài khoản Nhân viên / Quản trị bấm vào suất chiếu để chuyển sang màn hình Bán vé tại quầy.
+                </p>
+            </div>
+            <div class="small text-muted mt-2 mt-sm-0" th:if="${!dsNgayChieu.isEmpty() and !laNoiBo}">
+                <i class="bi bi-info-circle text-danger me-1"></i>Bạn cần đăng nhập khi giữ ghế
+            </div>
+            <div class="small text-muted mt-2 mt-sm-0" th:if="${!dsNgayChieu.isEmpty() and laNoiBo}">
+                <i class="bi bi-info-circle text-danger me-1"></i>Đặt vé online chỉ áp dụng cho tài khoản Khách hàng
+            </div>
+        </div>
+
+        <div th:if="${dsNgayChieu.isEmpty()}" class="card border-0 shadow-sm p-4 text-center text-muted">
+            <i class="bi bi-calendar-x fs-2 text-secondary mb-2"></i>
+            <div class="fw-semibold text-dark mb-1">Chưa có suất chiếu mở bán</div>
+            <div class="small">Hiện chưa có suất chiếu nào đang mở bán cho bộ phim này. Vui lòng quay lại sau hoặc xem các phim khác.</div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden" th:each="ngay : ${dsNgayChieu}">
+            <div class="card-header bg-white py-3 fw-bold d-flex align-items-center gap-2 border-bottom">
+                <i class="bi bi-calendar2-date text-danger fs-5"></i>
+                <span th:text="${ngay.nhan}">Hôm nay, 01/01</span>
+                <span class="badge bg-light text-secondary border ms-auto fw-normal"
+                      th:text="|${#lists.size(ngay.dsSuat)} suất chiếu|">3 suất chiếu</span>
+            </div>
+            <div class="card-body p-3 p-md-4 d-flex flex-wrap gap-3">
+                <a class="btn suat-btn text-start"
+                   th:each="s : ${ngay.dsSuat}"
+                   th:href="${laNoiBo} ? @{/quay/ban-ve(suatId=${s.id})} : @{/dat-ve/chon-ghe(suatId=${s.id})}"
+                   th:title="|Ghế thường ${#numbers.formatDecimal(s.giaThuong, 0, 'POINT', 0, 'COMMA')}đ - Ghế VIP ${#numbers.formatDecimal(s.giaVip, 0, 'POINT', 0, 'COMMA')}đ|">
+                    <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
+                        <span class="suat-gio" th:text="${#temporals.format(s.gioBatDau, 'HH:mm')}">19:30</span>
+                        <span class="badge border suat-phong" th:text="${s.phongChieu.tenPhong}">Phòng 1</span>
+                    </div>
+                    <small class="d-block text-muted suat-gia">
+                        <i class="bi bi-tag me-1"></i>từ <span class="fw-semibold" th:text="|${#numbers.formatDecimal(s.giaThuong, 0, 'POINT', 0, 'COMMA')}đ|">75.000đ</span>
+                    </small>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Danh sách phim')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 section-title mb-1">Khám phá điện ảnh</h1>
+            <p class="text-muted small mb-0">Tra cứu phim theo tên, thể loại và lựa chọn suất chiếu phù hợp</p>
+        </div>
+
+        <ul class="nav cinema-pills">
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${trangThai == 'DANG_CHIEU'} ? 'active'"
+                   th:href="@{/phim(trangThai='DANG_CHIEU')}">
+                    <i class="bi bi-play-circle-fill me-1"></i>Đang chiếu
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${trangThai == 'SAP_CHIEU'} ? 'active'"
+                   th:href="@{/phim(trangThai='SAP_CHIEU')}">
+                    <i class="bi bi-calendar2-event me-1"></i>Sắp chiếu
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <form class="filter-card p-3 p-md-4 mb-4" th:action="@{/phim}" method="get">
+        <input type="hidden" name="trangThai" th:value="${trangThai}">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="tuKhoa" class="form-label small fw-semibold mb-1">
+                    <i class="bi bi-search text-danger me-1"></i>Tên phim
+                </label>
+                <input type="search" class="form-control" id="tuKhoa" name="tuKhoa" th:value="${tuKhoa}"
+                       placeholder="Nhập tên phim cần tìm..." enterkeyhint="search">
+            </div>
+            <div class="col-md-3">
+                <label for="theLoaiId" class="form-label small fw-semibold mb-1">
+                    <i class="bi bi-tags text-danger me-1"></i>Thể loại
+                </label>
+                <select class="form-select" id="theLoaiId" name="theLoaiId">
+                    <option value="">Tất cả thể loại</option>
+                    <option th:each="tl : ${dsTheLoai}" th:value="${tl.id}" th:text="${tl.tenTheLoai}"
+                            th:selected="${theLoaiId != null and theLoaiId == tl.id}">Hành động</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="sapXep" class="form-label small fw-semibold mb-1">
+                    <i class="bi bi-sort-down text-danger me-1"></i>Sắp xếp theo
+                </label>
+                <select class="form-select" id="sapXep" name="sapXep">
+                    <option value="ngayKhoiChieu" th:selected="${sapXep == 'ngayKhoiChieu'}">Ngày khởi chiếu</option>
+                    <option value="tenPhim" th:selected="${sapXep == 'tenPhim'}">Tên phim</option>
+                    <option value="thoiLuong" th:selected="${sapXep == 'thoiLuong'}">Thời lượng</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="huong" class="form-label small fw-semibold mb-1">Thứ tự</label>
+                <select class="form-select" id="huong" name="huong">
+                    <option value="giam" th:selected="${huong == 'giam'}">Giảm dần</option>
+                    <option value="tang" th:selected="${huong == 'tang'}">Tăng dần</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-danger fw-semibold">
+                    <i class="bi bi-funnel-fill d-md-none me-1"></i>Lọc
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="text-muted small mb-0">
+            Tìm thấy <strong class="text-dark" th:text="${page.totalElements}">0</strong> bộ phim phù hợp
+        </p>
+        <a th:if="${tuKhoa != null or theLoaiId != null}" th:href="@{/phim(trangThai=${trangThai})}"
+           class="small text-danger text-decoration-none fw-semibold">
+            <i class="bi bi-x-circle me-1"></i>Đặt lại bộ lọc
+        </a>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-4 g-4" th:if="${!dsPhim.isEmpty()}">
+        <th:block th:each="p : ${dsPhim}">
+            <th:block th:replace="~{fragments/phim-card :: card(${p})}"></th:block>
+        </th:block>
+    </div>
+
+    <div class="card border-0 shadow-sm text-center py-5 my-3" th:if="${dsPhim.isEmpty()}">
+        <div class="card-body">
+            <i class="bi bi-search fs-1 text-secondary mb-2 d-block"></i>
+            <h2 class="h5 fw-bold">Không tìm thấy phim phù hợp</h2>
+            <p class="text-muted small mb-3">Hãy thử đổi từ khóa tìm kiếm hoặc chọn thể loại khác.</p>
+            <a class="btn btn-outline-danger btn-sm rounded-pill px-4" th:href="@{/phim(trangThai=${trangThai})}">
+                Xem toàn bộ danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <nav th:replace="~{fragments/phantrang :: phanTrang(${page}, ${duongDan})}"></nav>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>
