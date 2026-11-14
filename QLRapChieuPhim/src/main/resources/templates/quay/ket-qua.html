@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Kết quả xuất vé')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+    <div class="card shadow-sm mx-auto border-success" style="max-width: 700px;">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Đơn hàng: <span th:text="${donDat.maDon}"></span></h5>
+            <span class="badge bg-light text-success fs-6">ĐÃ THU TIỀN</span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-6">
+                    <p class="mb-1 text-muted">Khách hàng:</p>
+                    <p class="fw-bold" th:text="${!#strings.isEmpty(donDat.hoTenKhach) ? donDat.hoTenKhach : 'Khách vãng lai'}"></p>
+                </div>
+                <div class="col-6 text-end">
+                    <p class="mb-1 text-muted">Nhân viên xuất vé:</p>
+                    <p class="fw-bold" th:text="${donDat.nguoiDung != null ? donDat.nguoiDung.hoTen : 'Nhân viên quầy'}"></p>
+                </div>
+            </div>
+
+            <h3 class="text-center text-danger fw-bold border-top border-bottom py-3 mb-4">
+                TỔNG THU: <span th:text="${#numbers.formatDecimal(donDat.tongTien, 0, 'POINT', 0, 'COMMA')} + ' Đ'"></span>
+            </h3>
+
+            <h6 class="mb-3">Chi tiết <span th:text="${donDat.dsVe.size()}"></span> vé:</h6>
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <div class="col" th:each="ve : ${donDat.dsVe}">
+                    <div class="border p-3 rounded bg-white shadow-sm border-start border-4 border-danger position-relative">
+                        <div class="fw-bold fs-6 mb-2" th:text="${ve.suatChieu.phim.tenPhim}">Phim</div>
+                        <div class="small text-muted mb-1">Thời gian: <span class="text-dark" th:text="${#temporals.format(ve.suatChieu.gioBatDau, 'HH:mm dd/MM/yyyy')}"></span></div>
+                        <div class="small text-muted mb-1">Phòng: <span class="text-dark" th:text="${ve.suatChieu.phongChieu.tenPhong}"></span></div>
+                        <div class="d-flex justify-content-between align-items-end mt-2">
+                            <span class="text-muted small">Ghế ngồi: <strong class="fs-5 text-danger ms-1" th:text="${ve.ghe.nhanDang()}"></strong></span>
+                            <span class="badge bg-dark user-select-all" th:text="${ve.maVe}">MAVE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top text-center">
+                <button class="btn btn-secondary me-2 px-4" onclick="window.print()">🖨️ In Vé</button>
+                <a th:href="@{/quay/ban-ve}" class="btn btn-success px-4">Bán đơn mới</a>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/phieuve :: phieuVe(${donDat})}"></th:block>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

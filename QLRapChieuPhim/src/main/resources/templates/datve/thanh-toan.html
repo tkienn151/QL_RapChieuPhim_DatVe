@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Thanh toán đơn hàng')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white text-center py-3">
+                    <h5 class="mb-1">Thanh Toán Trực Tuyến</h5>
+                    <small>Vui lòng thanh toán trong <span id="countdown" class="fw-bold fs-5 text-warning">05:00</span> để không mất ghế</small>
+                </div>
+                <div class="card-body px-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Mã đơn hàng:</span>
+                        <span class="fw-bold" th:text="${donDat.maDon}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Số lượng vé:</span>
+                        <span th:text="${donDat.dsVe.size()} + ' vé'"></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Ngày tạo:</span>
+                        <span th:text="${#temporals.format(donDat.ngayDat, 'HH:mm dd/MM/yyyy')}"></span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="fs-5">Tổng tiền:</span>
+                        <span class="fs-4 fw-bold text-danger" th:text="${#numbers.formatDecimal(donDat.tongTien, 0, 'POINT', 0, 'COMMA')} + ' đ'"></span>
+                    </div>
+
+                    <form th:action="@{/dat-ve/thanh-toan}" method="post" class="mt-4">
+                        <input type="hidden" name="maDon" th:value="${donDat.maDon}">
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold text-uppercase shadow-sm">Xác nhận thanh toán</button>
+                    </form>
+                    <form th:action="@{/dat-ve/huy-giu-ghe}" method="post" class="mt-2"
+                          data-xac-nhan="Xác nhận hủy đơn giữ chỗ này và trả lại ghế trống?">
+                        <input type="hidden" name="maDon" th:value="${donDat.maDon}">
+                        <button type="submit" class="btn btn-outline-secondary w-100 py-2">
+                            <i class="bi bi-x-circle me-1"></i>Hủy giữ ghế &amp; Chọn lại
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+    var hanStr = [[${hanThanhToanStr}]];
+    var lichSuUrl = [[@{/lich-su}]];
+    var countDownDate = hanStr ? new Date(hanStr).getTime() : NaN;
+
+    if (!isNaN(countDownDate)) {
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = countDownDate - now;
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "HẾT GIỜ";
+                alert("Đã hết thời gian giữ ghế 5 phút. Đơn đặt vé của bạn đã tự động hủy.");
+                window.location.href = lichSuUrl;
+            } else {
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("countdown").innerHTML =
+                    (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+            }
+        }, 1000);
+    } else {
+        document.getElementById("countdown").innerHTML = "--:--";
+    }
+</script>
+</body>
+</html>

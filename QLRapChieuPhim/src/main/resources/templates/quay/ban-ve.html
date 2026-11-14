@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Bán vé tại quầy')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container-fluid py-4 px-4">
+    <div class="row">
+        <div class="col-md-3 border-end">
+            <h5 class="mb-3 text-primary">1. Chọn Suất Chiếu Đang Mở Bán</h5>
+            <div class="list-group shadow-sm">
+                <a th:each="s : ${dsSuat}" th:href="@{/quay/ban-ve(suatId=${s.id})}"
+                   class="list-group-item list-group-item-action"
+                   th:classappend="${suatChieu != null and suatChieu.id == s.id} ? 'active bg-primary border-primary'">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 text-truncate" th:text="${s.phim.tenPhim}">Phim</h6>
+                        <small th:text="${#temporals.format(s.gioBatDau, 'HH:mm')}">Giờ</small>
+                    </div>
+                    <small th:text="${s.phongChieu.tenPhong}">Phòng</small>
+                </a>
+                <p class="text-muted small mt-2" th:if="${dsSuat.isEmpty()}">Không có suất chiếu nào đang mở bán.</p>
+            </div>
+        </div>
+
+        <th:block th:if="${suatChieu != null}">
+            <div class="col-md-5 border-end">
+                <h5 class="mb-3 text-danger">2. Chọn Ghế - <span th:text="${suatChieu.phongChieu.tenPhong}"></span></h5>
+                <form th:action="@{/quay/ban-ve}" method="post" id="formBanVe">
+                    <input type="hidden" name="suatId" th:value="${suatChieu.id}">
+
+                    <div class="d-flex justify-content-center flex-wrap mt-3 bg-white p-3 border rounded shadow-sm" th:style="|max-width: ${suatChieu.phongChieu.soCot * 42 + 32}px; margin: 0 auto;|">
+                        <th:block th:each="ghe : ${dsGhe}">
+                            <th:block th:with="daDat=${#lists.contains(dsGheDaDat, ghe.id)}, gia=${ghe.loaiGhe.name() == 'VIP' ? suatChieu.giaVip : suatChieu.giaThuong}">
+                                <label class="btn btn-seat btn-seat-quay"
+                                       th:classappend="${daDat} ? 'disabled btn-secondary text-white' : (${ghe.loaiGhe.name() == 'VIP'} ? 'btn-outline-danger' : 'btn-outline-primary')"
+                                       th:title="${daDat} ? 'Đã bán' : 'Ghế ' + ${ghe.nhanDang()}">
+
+                                    <input type="checkbox" class="btn-check" name="dsGheId" th:value="${ghe.id}" th:disabled="${daDat}" autocomplete="off"
+                                           th:data-gia="${gia}" th:data-ghe="${ghe.nhanDang()}" th:data-vip="${ghe.loaiGhe.name() == 'VIP'}">
+
+                                    [[${ghe.nhanDang()}]]
+                                </label>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </form>
+
+                <div class="mt-2 d-flex justify-content-center gap-3 small fw-semibold text-muted">
+                    <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-primary rounded me-1" aria-hidden="true" style="width:12px;height:12px;"></span> Ghế Thường</span>
+                    <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-danger rounded me-1" aria-hidden="true" style="width:12px;height:12px;"></span> Ghế VIP</span>
+                    <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-secondary rounded me-1" aria-hidden="true" style="width:12px;height:12px;"></span> Đã Bán</span>
+                    <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-success rounded me-1" aria-hidden="true" style="width:12px;height:12px;"></span> Đang Chọn</span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <h5 class="mb-3 text-success">3. Thanh Toán & In Vé</h5>
+                <div class="card shadow-sm border-success">
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <label for="hoTenKhach" class="form-label small">Tên khách hàng (Không bắt buộc)</label>
+                            <input type="text" id="hoTenKhach" name="hoTenKhach" form="formBanVe" class="form-control form-control-sm" maxlength="100" autocomplete="name" placeholder="Khách vãng lai">
+                        </div>
+                        <div class="mb-3">
+                            <label for="sdtKhach" class="form-label small">Số điện thoại (Không bắt buộc)</label>
+                            <input type="tel" id="sdtKhach" name="sdtKhach" form="formBanVe" class="form-control form-control-sm"
+                                   maxlength="15" inputmode="tel" autocomplete="tel" pattern="(0|\+84)[0-9]{9}"
+                                   title="10 số, bắt đầu bằng 0 hoặc +84 (có thể để trống)" placeholder="Ví dụ: 0901234567">
+                            <div class="field-error-msg">Số điện thoại gồm 10 số, bắt đầu bằng 0 hoặc +84.</div>
+                        </div>
+                        <hr>
+                        <p class="mb-1" aria-live="polite">Ghế đang chọn: <strong id="lblGheChonQuay" class="text-danger">Chưa chọn</strong></p>
+                        <p class="mb-1 small text-muted">Giá vé: <span th:text="${#numbers.formatDecimal(suatChieu.giaThuong, 0, 'POINT', 0, 'COMMA')}"></span>đ (Thường) - <span th:text="${#numbers.formatDecimal(suatChieu.giaVip, 0, 'POINT', 0, 'COMMA')}"></span>đ (VIP)</p>
+                        <h3 class="text-end text-success mt-4" aria-live="polite">Tổng: <span id="lblTongTienQuay">0</span> đ</h3>
+                        <div class="mb-2">
+                            <label for="inpKhachDua" class="form-label small">Tiền khách đưa (đ)</label>
+                            <input type="number" min="0" step="1000" id="inpKhachDua" class="form-control form-control-sm">
+                        </div>
+                        <p class="mb-0 text-end" aria-live="polite">Tiền thối: <strong id="lblTienThoi" class="text-primary">0</strong> đ</p>
+
+                        <button type="submit" form="formBanVe" class="btn btn-success w-100 mt-3 py-2 fw-bold text-uppercase" data-xac-nhan="Xác nhận IN VÉ?">Xác nhận thu tiền mặt</button>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+
+        <th:block th:if="${suatChieu == null}">
+            <div class="col-md-9 d-flex align-items-center justify-content-center text-muted">
+                <h4>Vui lòng chọn 1 suất chiếu để tiếp tục.</h4>
+            </div>
+        </th:block>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+<script>
+    let tongQuay = 0;
+
+    function dongBoGheQuay() {
+        tongQuay = 0;
+        const gheQuay = [];
+        document.querySelectorAll('#formBanVe input[name="dsGheId"]').forEach(function (cb) {
+            const lbl = cb.parentElement;
+            if (cb.disabled) return;
+            if (cb.checked) {
+                tongQuay += parseFloat(cb.getAttribute('data-gia')) || 0;
+                gheQuay.push(cb.getAttribute('data-ghe'));
+                lbl.classList.add('bg-success', 'text-white');
+                lbl.classList.remove('btn-outline-primary', 'btn-outline-danger');
+            } else {
+                lbl.classList.remove('bg-success', 'text-white');
+                if (cb.getAttribute('data-vip') === 'true') {
+                    lbl.classList.add('btn-outline-danger');
+                } else {
+                    lbl.classList.add('btn-outline-primary');
+                }
+            }
+        });
+        const lblGhe = document.getElementById('lblGheChonQuay');
+        const lblTong = document.getElementById('lblTongTienQuay');
+        if (lblGhe) lblGhe.innerText = gheQuay.length > 0 ? gheQuay.join(', ') : 'Chưa chọn';
+        if (lblTong) lblTong.innerText = tongQuay.toLocaleString('vi-VN');
+        tinhTienThoi();
+    }
+
+    function tinhTienThoi() {
+        const inp = document.getElementById('inpKhachDua');
+        const lbl = document.getElementById('lblTienThoi');
+        if (!inp || !lbl) return;
+        const thoi = (parseFloat(inp.value) || 0) - tongQuay;
+        lbl.innerText = thoi >= 0 ? thoi.toLocaleString('vi-VN') : 'Chưa đủ tiền';
+    }
+
+    document.getElementById('formBanVe')?.addEventListener('change', function (e) {
+        if (e.target.matches('input[name="dsGheId"]')) {
+            dongBoGheQuay();
+        }
+    });
+    document.getElementById('inpKhachDua')?.addEventListener('input', tinhTienThoi);
+    document.addEventListener('DOMContentLoaded', dongBoGheQuay);
+    window.addEventListener('pageshow', dongBoGheQuay);
+</script>
+</body>
+</html>

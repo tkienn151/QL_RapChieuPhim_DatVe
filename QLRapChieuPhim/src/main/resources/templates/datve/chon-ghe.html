@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Chọn ghế - ' + ${suatChieu.phim.tenPhim})}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+    <h2 class="mb-4">Chọn ghế: <span class="text-danger" th:text="${suatChieu.phim.tenPhim}">Phim</span></h2>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm p-4 text-center">
+                <div class="screen w-75 mx-auto"></div>
+
+                <form th:action="@{/dat-ve/giu-ghe}" method="post" id="formChonGhe">
+                    <input type="hidden" name="suatId" th:value="${suatChieu.id}">
+                    <div class="d-flex justify-content-center flex-wrap" th:style="|max-width: ${suatChieu.phongChieu.soCot * 52}px; margin: 0 auto;|">
+                        <th:block th:each="ghe : ${dsGhe}">
+                            <th:block th:with="daDat=${#lists.contains(dsGheDaDat, ghe.id)}, gia=${ghe.loaiGhe.name() == 'VIP' ? suatChieu.giaVip : suatChieu.giaThuong}">
+                                <label class="btn btn-seat"
+                                       th:classappend="${daDat} ? 'disabled btn-secondary text-white' : (${ghe.loaiGhe.name() == 'VIP'} ? 'btn-outline-danger' : 'btn-outline-primary')"
+                                       th:title="${daDat} ? 'Đã có người đặt' : 'Ghế ' + ${ghe.nhanDang()}">
+
+                                    <input type="checkbox" class="btn-check" name="dsGheId" th:value="${ghe.id}" th:disabled="${daDat}" autocomplete="off"
+                                           th:data-gia="${gia}" th:data-ghe="${ghe.nhanDang()}" th:data-vip="${ghe.loaiGhe.name() == 'VIP'}">
+
+                                    [[${ghe.nhanDang()}]]
+                                </label>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-center gap-3 small fw-semibold text-muted">
+                <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-primary rounded me-1" aria-hidden="true" style="width:15px;height:15px;"></span> Ghế Thường</span>
+                <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-danger rounded me-1" aria-hidden="true" style="width:15px;height:15px;"></span> Ghế VIP</span>
+                <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-secondary rounded me-1" aria-hidden="true" style="width:15px;height:15px;"></span> Đã Đặt</span>
+                <span class="d-inline-flex align-items-center"><span class="d-inline-block bg-success rounded me-1" aria-hidden="true" style="width:15px;height:15px;"></span> Đang Chọn</span>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white fw-bold">Tóm tắt đơn hàng</div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Phòng chiếu:</strong> <span th:text="${suatChieu.phongChieu.tenPhong}"></span></p>
+                    <p class="mb-2"><strong>Thời gian:</strong> <span th:text="${#temporals.format(suatChieu.gioBatDau, 'HH:mm - dd/MM/yyyy')}"></span></p>
+                    <hr>
+                    <p aria-live="polite"><strong>Ghế đang chọn:</strong> <span id="lblGheChon" class="text-danger fw-bold">Chưa chọn</span></p>
+                    <p class="h4 text-end mt-4" aria-live="polite">Tổng: <span id="lblTongTien" class="text-danger fw-bold">0</span> đ</p>
+
+                    <button type="submit" form="formChonGhe" class="btn btn-danger w-100 mt-3">Giữ Ghế & Thanh Toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+<script>
+    function dongBoGhe() {
+        let tongTien = 0;
+        const gheDangChon = [];
+        document.querySelectorAll('#formChonGhe input[name="dsGheId"]').forEach(function (cb) {
+            const lbl = cb.parentElement;
+            if (cb.disabled) return;
+            if (cb.checked) {
+                tongTien += parseFloat(cb.getAttribute('data-gia')) || 0;
+                gheDangChon.push(cb.getAttribute('data-ghe'));
+                lbl.classList.add('bg-success', 'text-white');
+                lbl.classList.remove('btn-outline-primary', 'btn-outline-danger');
+            } else {
+                lbl.classList.remove('bg-success', 'text-white');
+                if (cb.getAttribute('data-vip') === 'true') {
+                    lbl.classList.add('btn-outline-danger');
+                } else {
+                    lbl.classList.add('btn-outline-primary');
+                }
+            }
+        });
+        document.getElementById('lblGheChon').innerText = gheDangChon.length > 0 ? gheDangChon.join(', ') : 'Chưa chọn';
+        document.getElementById('lblTongTien').innerText = tongTien.toLocaleString('vi-VN');
+    }
+
+    document.getElementById('formChonGhe')?.addEventListener('change', function (e) {
+        if (e.target.matches('input[name="dsGheId"]')) {
+            dongBoGhe();
+        }
+    });
+    document.addEventListener('DOMContentLoaded', dongBoGhe);
+    window.addEventListener('pageshow', dongBoGhe);
+</script>
+</body>
+</html>
