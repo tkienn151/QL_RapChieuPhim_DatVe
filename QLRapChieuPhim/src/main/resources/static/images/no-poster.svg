@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e2230"/>
+      <stop offset="50%" stop-color="#131620"/>
+      <stop offset="100%" stop-color="#2b0d14"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e50914"/>
+      <stop offset="100%" stop-color="#ff5722"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#bg)"/>
+  <rect x="24" y="24" width="352" height="552" rx="16" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2" stroke-dasharray="8 6"/>
+  <circle cx="200" cy="240" r="64" fill="rgba(229,9,20,0.12)" stroke="url(#accent)" stroke-width="3"/>
+  <circle cx="200" cy="240" r="16" fill="#e50914"/>
+  <circle cx="200" cy="198" r="8" fill="#9aa0ad"/>
+  <circle cx="200" cy="282" r="8" fill="#9aa0ad"/>
+  <circle cx="158" cy="240" r="8" fill="#9aa0ad"/>
+  <circle cx="242" cy="240" r="8" fill="#9aa0ad"/>
+  <text x="200" y="355" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" text-anchor="middle">CHƯA CÓ POSTER</text>
+  <text x="200" y="388" fill="#8b92a5" font-family="system-ui, -apple-system, sans-serif" font-size="15" text-anchor="middle">CineStar Cinema</text>
+</svg>
