@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Trang chủ')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<section class="hero py-5">
+    <div class="container py-lg-3">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7 text-center text-lg-start">
+                <div class="hero-badge mb-3">
+                    <i class="bi bi-stars"></i> Trải nghiệm điện ảnh đỉnh cao
+                </div>
+                <h1 class="display-5 fw-bold mb-3">Đặt vé xem phim nhanh chóng chỉ trong 30 giây</h1>
+                <p class="lead text-white-50 mb-4">
+                    Khám phá bom tấn Việt Nam &amp; Quốc tế mới nhất, xem lịch chiếu theo thời gian thực và chọn ngay vị trí ghế ngồi đẹp nhất mà không cần xếp hàng.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3 mb-4">
+                    <a class="btn btn-danger btn-lg rounded-pill px-4 fw-semibold shadow" th:href="@{/phim}">
+                        <i class="bi bi-ticket-perforated me-2"></i>Đặt vé phim đang chiếu
+                    </a>
+                    <a class="btn btn-outline-light btn-lg rounded-pill px-4" th:href="@{/phim(trangThai='SAP_CHIEU')}">
+                        <i class="bi bi-calendar-event me-2"></i>Phim sắp khởi chiếu
+                    </a>
+                </div>
+                <div class="row g-2 text-start">
+                    <div class="col-sm-4">
+                        <div class="hero-stat-card">
+                            <div class="fw-bold text-danger"><i class="bi bi-aspect-ratio me-1"></i><span th:text="${soPhongChieu != null and soPhongChieu > 0} ? |${soPhongChieu} Phòng chiếu| : 'Phòng chiếu hiện đại'">Phòng chiếu hiện đại</span></div>
+                            <div class="small text-white-50">Chuẩn âm thanh vòm &amp; ghế VIP</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="hero-stat-card">
+                            <div class="fw-bold text-warning"><i class="bi bi-lightning-charge me-1"></i>Giữ ghế tức thì</div>
+                            <div class="small text-white-50">Chống trùng ghế thời gian thực</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="hero-stat-card">
+                            <div class="fw-bold text-info"><i class="bi bi-qr-code me-1"></i>Vé điện tử</div>
+                            <div class="small text-white-50">Soát vé nhanh qua mã vé</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5" th:if="${!dsDangChieu.isEmpty()}" th:with="noiBat=${dsDangChieu[0]}">
+                <div class="hero-spotlight-card">
+                    <div class="d-flex gap-3 align-items-center">
+                        <a th:href="@{/phim/chi-tiet(id=${noiBat.id})}">
+                            <img class="poster hero-spotlight-poster"
+                                 th:src="${#strings.isEmpty(noiBat.poster)} ? @{/images/no-poster.svg(v=2)} : ((${#strings.startsWith(noiBat.poster, 'http')} or ${#strings.startsWith(noiBat.poster, '/')}) ? ${noiBat.poster} : @{/images/posters/{f}(f=${noiBat.poster},v=2)})"
+                                 th:alt="${noiBat.tenPhim}" fetchpriority="high" width="300" height="450">
+                        </a>
+                        <div class="flex-grow-1">
+                            <span class="badge bg-danger mb-2"><i class="bi bi-fire me-1"></i>Tâm điểm đang chiếu</span>
+                            <h2 class="h5 fw-bold mb-1">
+                                <a th:href="@{/phim/chi-tiet(id=${noiBat.id})}" class="text-white text-decoration-none" th:text="${noiBat.tenPhim}">Tên phim</a>
+                            </h2>
+                            <div class="small text-white-50 mb-2">
+                                <span th:text="${noiBat.theLoai.tenTheLoai}">Thể loại</span> &bull;
+                                <span th:text="|${noiBat.thoiLuong} phút|">131 phút</span>
+                            </div>
+                            <p class="small text-white-50 mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"
+                               th:text="${noiBat.moTa}">Mô tả ngắn</p>
+                            <a th:href="@{/phim/chi-tiet(id=${noiBat.id})}" class="btn btn-sm btn-danger rounded-pill px-3 fw-semibold">
+                                Xem suất chiếu <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="container py-5">
+
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="h4 section-title mb-1">Phim đang chiếu</h2>
+                <p class="text-muted small mb-0">Các bộ phim đang mở bán vé tại rạp hôm nay</p>
+            </div>
+            <a th:href="@{/phim}" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold">
+                Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-4 g-4" th:if="${!dsDangChieu.isEmpty()}">
+            <th:block th:each="p : ${dsDangChieu}">
+                <th:block th:replace="~{fragments/phim-card :: card(${p})}"></th:block>
+            </th:block>
+        </div>
+        <div class="card border-0 shadow-sm text-center py-5 text-muted" th:if="${dsDangChieu.isEmpty()}">
+            <i class="bi bi-film fs-1 mb-2 text-secondary"></i>
+            <p class="mb-0">Hiện chưa có phim đang chiếu.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="h4 section-title mb-1">Phim sắp chiếu</h2>
+                <p class="text-muted small mb-0">Đón chờ các siêu phẩm sắp đổ bộ rạp chiếu</p>
+            </div>
+            <a th:href="@{/phim(trangThai='SAP_CHIEU')}" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold">
+                Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-4 g-4" th:if="${!dsSapChieu.isEmpty()}">
+            <th:block th:each="p : ${dsSapChieu}">
+                <th:block th:replace="~{fragments/phim-card :: card(${p})}"></th:block>
+            </th:block>
+        </div>
+        <div class="card border-0 shadow-sm text-center py-5 text-muted" th:if="${dsSapChieu.isEmpty()}">
+            <i class="bi bi-calendar2-week fs-1 mb-2 text-secondary"></i>
+            <p class="mb-0">Hiện chưa có phim sắp chiếu.</p>
+        </div>
+    </section>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>
