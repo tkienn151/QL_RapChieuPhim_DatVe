@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Tra cứu đơn vé')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+    <h2 class="mb-3">Tra cứu đơn đặt vé</h2>
+
+    <form th:action="@{/tra-cuu}" method="get" class="card card-body shadow-sm mb-4">
+        <div class="d-flex gap-2">
+            <input type="text" name="tuKhoa" class="form-control" th:value="${tuKhoa}" placeholder="Nhập mã đơn, số điện thoại hoặc họ tên khách">
+            <button type="submit" class="btn btn-primary text-nowrap">Tra cứu</button>
+            <a th:href="@{/tra-cuu}" class="btn btn-outline-secondary text-nowrap">Xóa lọc</a>
+        </div>
+    </form>
+
+    <div th:if="${don != null}" class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center"
+             th:classappend="${don.trangThai.name() == 'DA_THANH_TOAN'} ? 'bg-success text-white' : (${don.trangThai.name() == 'CHO_THANH_TOAN'} ? 'bg-warning text-dark' : (${don.trangThai.name() == 'HET_HAN'} ? 'bg-danger text-white' : 'bg-secondary text-white'))">
+            <h5 class="mb-0">Đơn <span th:text="${don.maDon}"></span></h5>
+            <span class="badge bg-light text-dark" th:text="${don.trangThai}"></span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Khách hàng:</strong> <span th:text="${!#strings.isEmpty(don.hoTenKhach) ? don.hoTenKhach : (don.kenhDat != null and don.kenhDat.name() == 'WEB' and don.nguoiDung != null ? don.nguoiDung.hoTen : 'Khách vãng lai')}"></span></p>
+                    <p class="mb-1"><strong>Số điện thoại:</strong> <span th:text="${!#strings.isEmpty(don.sdtKhach) ? don.sdtKhach : (don.kenhDat != null and don.kenhDat.name() == 'WEB' and don.nguoiDung != null ? don.nguoiDung.soDienThoai : '')}"></span></p>
+                    <p class="mb-1"><strong>Ngày đặt:</strong> <span th:text="${#temporals.format(don.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Kênh:</strong> <span th:text="${don.kenhDat}"></span></p>
+                    <p class="mb-1"><strong>Tổng tiền:</strong> <span th:text="${#numbers.formatDecimal(don.tongTien, 0, 'POINT', 0, 'COMMA')} + ' đ'"></span></p>
+                    <p class="mb-1" th:if="${don.trangThai.name() == 'CHO_THANH_TOAN' and don.hanThanhToan != null}">
+                        <strong>Hạn giữ ghế:</strong> <span class="text-danger fw-semibold" th:text="${#temporals.format(don.hanThanhToan, 'HH:mm:ss dd/MM/yyyy')}"></span>
+                    </p>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light"><tr><th>Mã vé</th><th>Phim</th><th>Giờ chiếu</th><th>Phòng / Ghế</th><th>Giá vé</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                    <tr th:each="ve : ${don.dsVe}">
+                        <td><span class="badge bg-dark user-select-all" th:text="${ve.maVe}"></span></td>
+                        <td th:text="${ve.suatChieu.phim.tenPhim}"></td>
+                        <td th:text="${#temporals.format(ve.suatChieu.gioBatDau, 'HH:mm dd/MM/yyyy')}"></td>
+                        <td th:text="${ve.suatChieu.phongChieu.tenPhong} + ' - ' + ${ve.ghe.nhanDang()}"></td>
+                        <td th:text="${#numbers.formatDecimal(ve.giaVe, 0, 'POINT', 0, 'COMMA')} + ' đ'"></td>
+                        <td><span class="badge" th:classappend="${ve.trangThai.name() == 'HOP_LE'} ? 'bg-success' : (${ve.trangThai.name() == 'DA_SOAT'} ? 'bg-primary' : 'bg-secondary')" th:text="${ve.trangThai}"></span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button th:if="${don.trangThai.name() == 'DA_THANH_TOAN'}" type="button" class="btn btn-outline-dark" onclick="window.print()">🖨️ In vé</button>
+                <form th:if="${coTheThanhToan}" th:action="@{/tra-cuu/xac-nhan}" method="post" class="d-inline" data-xac-nhan="Xác nhận đã thu tiền mặt cho đơn giữ chỗ này?">
+                    <input type="hidden" name="maDon" th:value="${don.maDon}">
+                    <button type="submit" class="btn btn-success">💰 Xác nhận thu tiền</button>
+                </form>
+                <form th:if="${coTheThanhToan}" th:action="@{/tra-cuu/huy-giu-ghe}" method="post" class="d-inline" data-xac-nhan="Xác nhận hủy giữ ghế cho đơn này và giải phóng ghế ngay?">
+                    <input type="hidden" name="maDon" th:value="${don.maDon}">
+                    <button type="submit" class="btn btn-outline-danger">Hủy giữ ghế</button>
+                </form>
+                <form th:if="${coTheHuy}" th:action="@{/tra-cuu/huy}" method="post" class="d-inline" data-xac-nhan="Xác nhận hủy đơn này và hoàn trả ghế?">
+                    <input type="hidden" name="maDon" th:value="${don.maDon}">
+                    <button type="submit" class="btn btn-danger">Hủy đơn</button>
+                </form>
+            </div>
+            <p th:if="${don.trangThai.name() == 'DA_THANH_TOAN' and !coTheHuy}" class="text-muted small mt-2 mb-0">
+                Đơn đã thanh toán này không thể hủy (đã có vé soát vào rạp hoặc còn dưới 60 phút trước giờ chiếu).
+            </p>
+            <p th:if="${don.trangThai.name() == 'DA_HUY'}" class="text-muted small mt-2 mb-0">
+                Đơn đặt vé này đã được hủy, toàn bộ ghế đã được giải phóng.
+            </p>
+            <p th:if="${don.trangThai.name() == 'HET_HAN'}" class="text-danger small mt-2 mb-0">
+                Đơn đặt vé này đã hết hạn giữ ghế (5 phút), toàn bộ ghế đã được giải phóng.
+            </p>
+        </div>
+    </div>
+
+    <th:block th:if="${don != null and don.trangThai.name() == 'DA_THANH_TOAN'}">
+        <th:block th:replace="~{fragments/phieuve :: phieuVe(${don})}"></th:block>
+    </th:block>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark"><tr><th>Mã đơn</th><th>Khách hàng</th><th>SĐT</th><th>Ngày đặt</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody>
+            <tr th:each="d : ${page.content}">
+                <td th:text="${d.maDon}"></td>
+                <td th:text="${!#strings.isEmpty(d.hoTenKhach) ? d.hoTenKhach : (d.kenhDat != null and d.kenhDat.name() == 'WEB' and d.nguoiDung != null ? d.nguoiDung.hoTen : 'Khách vãng lai')}"></td>
+                <td th:text="${!#strings.isEmpty(d.sdtKhach) ? d.sdtKhach : (d.kenhDat != null and d.kenhDat.name() == 'WEB' and d.nguoiDung != null ? d.nguoiDung.soDienThoai : '')}"></td>
+                <td th:text="${#temporals.format(d.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${#numbers.formatDecimal(d.tongTien, 0, 'POINT', 0, 'COMMA')} + ' đ'"></td>
+                <td th:text="${d.trangThai}"></td>
+                <td><a th:href="@{/tra-cuu(maDon=${d.maDon},tuKhoa=${tuKhoa},trang=${page.number})}" class="btn btn-sm btn-outline-primary">Chi tiết</a></td>
+            </tr>
+            <tr th:if="${page.empty}"><td colspan="7" class="text-center text-muted">Không tìm thấy đơn đặt vé nào.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <nav th:replace="~{fragments/phantrang :: phanTrang(${page}, ${duongDan})}"></nav>
+</main>
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>
