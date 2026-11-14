@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Thêm / sửa thể loại')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4" style="max-width: 560px;">
+    <h2 class="mb-3" th:text="${theLoai.id == null ? 'Thêm thể loại' : 'Cập nhật thể loại'}">Thể loại</h2>
+    <form th:object="${theLoai}" th:action="${theLoai.id == null} ? @{/admin/theloai/them} : @{/admin/theloai/sua/{id}(id=${theLoai.id})}" method="post" class="card card-body shadow-sm">
+        <div class="mb-3"><label class="form-label">Tên thể loại (*)</label><input type="text" class="form-control" th:field="*{tenTheLoai}" maxlength="50" required><div th:replace="~{fragments/loi-truong :: loiTruong('tenTheLoai')}"></div></div>
+        <div class="mb-3"><label class="form-label">Mô tả</label><textarea class="form-control" th:field="*{moTa}" maxlength="255" rows="3"></textarea><div th:replace="~{fragments/loi-truong :: loiTruong('moTa')}"></div></div>
+        <div class="d-flex justify-content-between">
+            <a th:href="@{/admin/theloai}" class="btn btn-secondary">Quay lại</a>
+            <button type="submit" class="btn btn-primary">Lưu thể loại</button>
+        </div>
+    </form>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

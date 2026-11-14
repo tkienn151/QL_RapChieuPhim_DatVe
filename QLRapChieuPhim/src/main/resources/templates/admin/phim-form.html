@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Thêm / sửa phim')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4" style="max-width: 780px;">
+    <h2 class="mb-3" th:text="${phim.id == null ? 'Thêm phim' : 'Cập nhật phim'}">Phim</h2>
+    <form th:object="${phim}" th:action="${phim.id == null} ? @{/admin/phim/them} : @{/admin/phim/sua/{id}(id=${phim.id})}"
+          method="post" enctype="multipart/form-data" class="card card-body shadow-sm">
+        <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">Mã phim (*)</label><input type="text" class="form-control" th:field="*{maPhim}" maxlength="20" required><div th:replace="~{fragments/loi-truong :: loiTruong('maPhim')}"></div></div>
+            <div class="col-md-8"><label class="form-label">Tên phim (*)</label><input type="text" class="form-control" th:field="*{tenPhim}" maxlength="150" required><div th:replace="~{fragments/loi-truong :: loiTruong('tenPhim')}"></div></div>
+            <div class="col-12"><label class="form-label">Mô tả</label><textarea class="form-control" th:field="*{moTa}" maxlength="1000" rows="4"></textarea></div>
+            <div class="col-md-4"><label class="form-label">Thời lượng (phút) (*)</label><input type="number" class="form-control" th:field="*{thoiLuong}" min="1" required><div th:replace="~{fragments/loi-truong :: loiTruong('thoiLuong')}"></div></div>
+            <div class="col-md-4"><label class="form-label">Ngày khởi chiếu</label><input type="date" class="form-control" th:field="*{ngayKhoiChieu}"></div>
+            <div class="col-md-4">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" th:field="*{trangThai}">
+                    <option th:each="tt : ${trangThaiList}" th:value="${tt}" th:text="${tt}"></option>
+                </select>
+            </div>
+            <div class="col-md-6"><label class="form-label">Đạo diễn</label><input type="text" class="form-control" th:field="*{daoDien}" maxlength="100"></div>
+            <div class="col-md-6"><label class="form-label">Diễn viên</label><input type="text" class="form-control" th:field="*{dienVien}" maxlength="255"></div>
+            <div class="col-md-6">
+                <label class="form-label">Poster (tên file, vd phim01.jpg, hoặc link http)</label>
+                <input type="text" class="form-control" th:field="*{poster}" maxlength="255" oninput="capNhatXemTruocPoster(this.value)">
+                <label class="form-label small text-muted mt-2 mb-1">Hoặc tải tệp ảnh Poster từ máy tính:</label>
+                <input type="file" name="posterFile" accept="image/*" class="form-control form-control-sm" onchange="xemTruocFilePoster(this)">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Thể loại (*)</label>
+                <select name="theLoaiId" class="form-select" required>
+                    <option value="">-- Chọn thể loại --</option>
+                    <option th:each="tl : ${dsTheLoai}" th:value="${tl.id}" th:text="${tl.tenTheLoai}" th:selected="${phim.theLoai != null and phim.theLoai.id == tl.id}"></option>
+                </select>
+                <div class="mt-2 d-flex align-items-center gap-2">
+                    <img id="previewPosterImg"
+                         th:src="${#strings.isEmpty(phim.poster)} ? @{/images/no-poster.svg} : ((${#strings.startsWith(phim.poster, 'http')} or ${#strings.startsWith(phim.poster, '/')}) ? ${phim.poster} : @{/images/posters/{f}(f=${phim.poster})})"
+                         alt="Xem trước poster"
+                         class="poster rounded border shadow-sm"
+                         style="width: 72px; height: 100px; object-fit: cover;">
+                    <span class="small text-muted">Xem trước ảnh Poster</span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between mt-4">
+            <a th:href="@{/admin/phim}" class="btn btn-secondary">Quay lại</a>
+            <button type="submit" class="btn btn-primary">Lưu phim</button>
+        </div>
+    </form>
+</main>
+<script>
+    function capNhatXemTruocPoster(val) {
+        var img = document.getElementById('previewPosterImg');
+        if (!img) return;
+        if (!val || val.trim() === '') {
+            img.src = '/images/no-poster.svg';
+        } else if (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/')) {
+            img.src = val.trim();
+        } else {
+            img.src = '/images/posters/' + val.trim();
+        }
+    }
+    function xemTruocFilePoster(input) {
+        var img = document.getElementById('previewPosterImg');
+        if (img && input.files && input.files[0]) {
+            img.src = URL.createObjectURL(input.files[0]);
+        }
+    }
+</script>
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

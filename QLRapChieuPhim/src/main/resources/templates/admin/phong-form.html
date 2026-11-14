@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Thêm / sửa phòng chiếu')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4" style="max-width: 560px;">
+    <h2 class="mb-3" th:text="${phongChieu.id == null ? 'Thêm phòng chiếu' : 'Cập nhật phòng chiếu'}">Phòng</h2>
+    <form th:object="${phongChieu}" th:action="${phongChieu.id == null} ? @{/admin/phong/them} : @{/admin/phong/sua/{id}(id=${phongChieu.id})}" method="post" class="card card-body shadow-sm">
+        <div class="mb-3"><label class="form-label">Mã phòng (*)</label><input type="text" class="form-control" th:field="*{maPhong}" maxlength="10" required><div th:replace="~{fragments/loi-truong :: loiTruong('maPhong')}"></div></div>
+        <div class="mb-3"><label class="form-label">Tên phòng (*)</label><input type="text" class="form-control" th:field="*{tenPhong}" maxlength="50" required><div th:replace="~{fragments/loi-truong :: loiTruong('tenPhong')}"></div></div>
+        <div class="row">
+            <div class="col mb-3"><label class="form-label">Số hàng (*)</label><input type="number" class="form-control" th:field="*{soHang}" min="1" required><div th:replace="~{fragments/loi-truong :: loiTruong('soHang')}"></div></div>
+            <div class="col mb-3"><label class="form-label">Số cột (*)</label><input type="number" class="form-control" th:field="*{soCot}" min="1" required><div th:replace="~{fragments/loi-truong :: loiTruong('soCot')}"></div></div>
+        </div>
+        <p class="small text-muted">Hệ thống tự tạo ghế theo số hàng x số cột; hàng cuối cùng là ghế VIP. Phòng đã có suất chiếu thì không đổi được số hàng/số cột.</p>
+        <div class="d-flex justify-content-between">
+            <a th:href="@{/admin/phong}" class="btn btn-secondary">Quay lại</a>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+    </form>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

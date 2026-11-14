@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Quản lý phim')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Quản lý phim</h2>
+        <div>
+            <a th:href="@{/admin/theloai}" class="btn btn-outline-secondary btn-sm">Thể loại</a>
+            <a th:href="@{/admin/phong}" class="btn btn-outline-secondary btn-sm">Phòng chiếu</a>
+            <a th:href="@{/admin/phim/them}" class="btn btn-primary btn-sm">+ Thêm phim</a>
+        </div>
+    </div>
+
+    <form th:action="@{/admin/phim}" method="get" class="row g-2 mb-3">
+        <div class="col-md-3"><input type="text" name="tuKhoa" class="form-control" placeholder="Nhập tên phim" th:value="${tuKhoa}"></div>
+        <div class="col-md-2">
+            <select name="theLoaiId" class="form-select">
+                <option value="">-- Thể loại --</option>
+                <option th:each="tl : ${dsTheLoai}" th:value="${tl.id}" th:text="${tl.tenTheLoai}" th:selected="${theLoaiId != null and theLoaiId == tl.id}"></option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Trạng thái --</option>
+                <option th:each="tt : ${trangThaiList}" th:value="${tt}" th:text="${tt}" th:selected="${trangThai == tt}"></option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="sapXep" class="form-select">
+                <option value="tenPhim" th:selected="${sapXep == 'tenPhim'}">Tên phim</option>
+                <option value="ngayKhoiChieu" th:selected="${sapXep == 'ngayKhoiChieu'}">Ngày khởi chiếu</option>
+                <option value="thoiLuong" th:selected="${sapXep == 'thoiLuong'}">Thời lượng</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <select name="tang" class="form-select">
+                <option value="true" th:selected="${tang}">Tăng</option>
+                <option value="false" th:selected="${!tang}">Giảm</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-dark flex-fill">Lọc</button>
+            <a th:href="@{/admin/phim}" class="btn btn-outline-secondary">Xóa lọc</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+            <tr><th>STT</th><th>Mã phim</th><th>Tên phim</th><th>Thể loại</th><th>Thời lượng</th><th>Khởi chiếu</th><th>Trạng thái</th><th style="min-width:300px">Thao tác</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="phim, stt : ${dsPhim.content}">
+                <td th:text="${dsPhim.number * dsPhim.size + stt.count}"></td>
+                <td th:text="${phim.maPhim}"></td>
+                <td th:text="${phim.tenPhim}"></td>
+                <td th:text="${phim.theLoai != null ? phim.theLoai.tenTheLoai : ''}"></td>
+                <td th:text="${phim.thoiLuong} + ' phút'"></td>
+                <td th:text="${phim.ngayKhoiChieu != null ? #temporals.format(phim.ngayKhoiChieu, 'dd/MM/yyyy') : ''}"></td>
+                <td th:text="${phim.trangThai}"></td>
+                <td>
+                    <div class="d-flex flex-wrap gap-1">
+                        <a th:href="@{/admin/phim/sua/{id}(id=${phim.id})}" class="btn btn-sm btn-warning">Sửa</a>
+                        <form th:action="@{/admin/phim/xoa/{id}(id=${phim.id})}" method="post" class="d-inline" onsubmit="return confirm('Bạn chắc chắn muốn xóa phim này?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                        </form>
+                        <form th:action="@{/admin/phim/doi-trang-thai/{id}(id=${phim.id})}" method="post" class="d-inline-flex gap-1">
+                            <select name="trangThai" class="form-select form-select-sm">
+                                <option th:each="tt : ${trangThaiList}" th:value="${tt}" th:text="${tt}" th:selected="${phim.trangThai == tt}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap">Đổi</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${dsPhim.empty}"><td colspan="8" class="text-center text-muted">Không tìm thấy phim.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <span th:text="${'Trang ' + (dsPhim.number + 1) + ' / ' + (dsPhim.totalPages == 0 ? 1 : dsPhim.totalPages)}"></span>
+        <div>
+            <a th:if="${dsPhim.hasPrevious()}" class="btn btn-outline-secondary btn-sm" th:href="@{/admin/phim(tuKhoa=${tuKhoa},theLoaiId=${theLoaiId},trangThai=${trangThai},sapXep=${sapXep},tang=${tang},trang=${dsPhim.number - 1},kichThuoc=${dsPhim.size})}">&laquo; Trang trước</a>
+            <a th:if="${dsPhim.hasNext()}" class="btn btn-outline-secondary btn-sm" th:href="@{/admin/phim(tuKhoa=${tuKhoa},theLoaiId=${theLoaiId},trangThai=${trangThai},sapXep=${sapXep},tang=${tang},trang=${dsPhim.number + 1},kichThuoc=${dsPhim.size})}">Trang sau &raquo;</a>
+        </div>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

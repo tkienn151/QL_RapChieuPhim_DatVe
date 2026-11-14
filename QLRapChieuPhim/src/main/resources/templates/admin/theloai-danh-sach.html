@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Quản lý thể loại')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Quản lý thể loại</h2>
+        <a th:href="@{/admin/theloai/them}" class="btn btn-primary btn-sm">+ Thêm thể loại</a>
+    </div>
+    <form th:action="@{/admin/theloai}" method="get" class="row g-2 mb-3">
+        <div class="col-md-5"><input type="text" name="tuKhoa" class="form-control" placeholder="Tìm theo tên hoặc mô tả..." th:value="${tuKhoa}"></div>
+        <div class="col-md-3">
+            <select name="sapXep" class="form-select">
+                <option value="tenTheLoai" th:selected="${sapXep == 'tenTheLoai'}">Sắp xếp: Tên thể loại</option>
+                <option value="moTa" th:selected="${sapXep == 'moTa'}">Mô tả</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="tang" class="form-select">
+                <option value="true" th:selected="${tang}">Tăng dần</option>
+                <option value="false" th:selected="${!tang}">Giảm dần</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-dark flex-fill">Lọc</button>
+            <a th:href="@{/admin/theloai}" class="btn btn-outline-secondary">Xóa lọc</a>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+            <tr><th>STT</th><th>Tên thể loại</th><th>Mô tả</th><th>Số phim</th><th>Thao tác</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="tl, stt : ${dsTheLoai.content}">
+                <td th:text="${dsTheLoai.number * dsTheLoai.size + stt.count}"></td>
+                <td th:text="${tl.tenTheLoai}"></td>
+                <td th:text="${tl.moTa}"></td>
+                <td th:text="${tl.soPhim()}"></td>
+                <td>
+                    <a th:href="@{/admin/theloai/sua/{id}(id=${tl.id})}" class="btn btn-sm btn-warning">Sửa</a>
+                    <form th:action="@{/admin/theloai/xoa/{id}(id=${tl.id})}" method="post" class="d-inline" onsubmit="return confirm('Bạn chắc chắn muốn xóa thể loại này?')">
+                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${dsTheLoai.empty}"><td colspan="5" class="text-center text-muted">Chưa có thể loại.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="~{fragments/phantrang :: phanTrang(${dsTheLoai}, ${duongDan})}"></div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>
