@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>fragments/phantrang</title>
+</head>
+<body>
+
+<nav th:fragment="phanTrang(page, duongDan)" th:if="${page.totalPages > 1}" aria-label="Phân trang"
+     th:with="noi=${#strings.contains(duongDan, '?') ? '&' : '?'},
+              dau=${page.number - 2 < 0 ? 0 : page.number - 2},
+              cuoi=${page.number + 2 > page.totalPages - 1 ? page.totalPages - 1 : page.number + 2}">
+    <ul class="pagination justify-content-center flex-wrap mb-0">
+        <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+            <a class="page-link" th:href="@{${duongDan + noi + 'trang=' + (page.number - 1)}}" aria-label="Trang trước">&laquo;</a>
+        </li>
+        <li class="page-item" th:if="${dau > 0}">
+            <a class="page-link" th:href="@{${duongDan + noi + 'trang=0'}}">1</a>
+        </li>
+        <li class="page-item disabled" th:if="${dau > 1}"><span class="page-link">&hellip;</span></li>
+        <li class="page-item" th:each="i : ${#numbers.sequence(dau, cuoi)}" th:classappend="${i == page.number} ? 'active'">
+            <a class="page-link" th:href="@{${duongDan + noi + 'trang=' + i}}" th:text="${i + 1}">1</a>
+        </li>
+        <li class="page-item disabled" th:if="${cuoi < page.totalPages - 2}"><span class="page-link">&hellip;</span></li>
+        <li class="page-item" th:if="${cuoi < page.totalPages - 1}">
+            <a class="page-link" th:href="@{${duongDan + noi + 'trang=' + (page.totalPages - 1)}}" th:text="${page.totalPages}">N</a>
+        </li>
+        <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+            <a class="page-link" th:href="@{${duongDan + noi + 'trang=' + (page.number + 1)}}" aria-label="Trang sau">&raquo;</a>
+        </li>
+    </ul>
+</nav>
+</body>
+</html>

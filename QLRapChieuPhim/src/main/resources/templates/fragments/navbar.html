@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>fragments/navbar</title>
+</head>
+<body>
+
+<th:block th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark site-navbar sticky-top"
+         th:with="nd=${session.nguoiDung},
+                  laQuanTri=${nd != null and nd.vaiTro.name() == 'QUAN_TRI'},
+                  laNhanVien=${nd != null and nd.vaiTro.name() == 'NHAN_VIEN'},
+                  laKhach=${nd != null and nd.vaiTro.name() == 'KHACH_HANG'}">
+        <div class="container">
+            <a class="navbar-brand brand-logo" th:href="@{/}">
+                <span class="brand-badge"><i class="bi bi-film"></i></span>
+                <span>CineStar<span class="text-danger">.</span></span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menuChinh"
+                    aria-controls="menuChinh" aria-expanded="false" aria-label="Mở menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menuChinh">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}" data-menu="/">
+                            <i class="bi bi-house-door me-1"></i>Trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/phim}" data-menu="/phim">
+                            <i class="bi bi-camera-reels me-1"></i>Lịch chiếu &amp; Phim
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${laKhach}">
+                        <a class="nav-link" th:href="@{/lich-su}" data-menu="/lich-su">
+                            <i class="bi bi-ticket-perforated me-1"></i>Vé của tôi
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${laNhanVien or laQuanTri}">
+                        <a class="nav-link" th:href="@{/quay/ban-ve}" data-menu="/quay">
+                            <i class="bi bi-pc-display-horizontal me-1"></i>Bán vé tại quầy
+                        </a>
+                    </li>
+                    <li class="nav-item" th:if="${laNhanVien or laQuanTri}">
+                        <a class="nav-link" th:href="@{/tra-cuu}" data-menu="/tra-cuu">
+                            <i class="bi bi-qr-code-scan me-1"></i>Tra cứu vé
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown" th:if="${laQuanTri}">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-menu="/admin">
+                            <i class="bi bi-shield-lock me-1"></i>Quản trị
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-secondary">
+                            <li><a class="dropdown-item" th:href="@{/admin/phim}"><i class="bi bi-film me-2 text-danger"></i>Quản lý phim</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/theloai}"><i class="bi bi-tags me-2 text-danger"></i>Quản lý thể loại</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/phong}"><i class="bi bi-grid-3x3-gap me-2 text-danger"></i>Phòng chiếu &amp; ghế</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/suat}"><i class="bi bi-calendar2-week me-2 text-danger"></i>Suất chiếu</a></li>
+                            <li><hr class="dropdown-divider border-secondary"></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/taikhoan}"><i class="bi bi-people me-2 text-warning"></i>Tài khoản</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/thong-ke}"><i class="bi bi-bar-chart-line me-2 text-info"></i>Thống kê doanh thu</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <form class="d-flex align-items-center nav-search-group me-lg-3 mb-2 mb-lg-0" th:action="@{/phim}" method="get" role="search">
+                    <i class="bi bi-search text-white-50 small"></i>
+                    <input class="form-control nav-search-input" type="search" name="tuKhoa"
+                           placeholder="Tìm tên phim..." aria-label="Tìm phim" enterkeyhint="search">
+                    <button class="btn btn-danger nav-search-btn" type="submit">Tìm</button>
+                </form>
+
+                <div class="d-flex gap-2" th:if="${nd == null}">
+                    <a class="btn btn-sm btn-outline-light rounded-pill px-3" th:href="@{/dang-nhap}">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                    </a>
+                    <a class="btn btn-sm btn-danger rounded-pill px-3 fw-semibold" th:href="@{/dang-ky}">
+                        <i class="bi bi-person-plus me-1"></i>Đăng ký
+                    </a>
+                </div>
+
+                <div class="dropdown" th:if="${nd != null}">
+                    <a class="btn btn-sm btn-outline-light rounded-pill px-3 dropdown-toggle d-inline-flex align-items-center gap-1"
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle text-danger"></i>
+                        <span th:text="${nd.hoTen}">Họ tên</span>
+                        <span class="badge rounded-pill bg-danger ms-1"
+                              th:text="${laQuanTri} ? 'Quản trị' : (${laNhanVien} ? 'Nhân viên' : 'Khách hàng')">Vai trò</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                        <li class="px-3 py-1 small text-muted border-bottom">
+                            Tài khoản: <strong th:text="${nd.tenDangNhap}">user</strong>
+                        </li>
+                        <li><a class="dropdown-item py-2" th:href="@{/ho-so}"><i class="bi bi-person-gear me-2 text-secondary"></i>Hồ sơ cá nhân</a></li>
+                        <li th:if="${laKhach}"><a class="dropdown-item py-2" th:href="@{/lich-su}"><i class="bi bi-clock-history me-2 text-secondary"></i>Lịch sử đặt vé</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <form th:action="@{/dang-xuat}" method="post" class="m-0">
+                                <button type="submit" class="dropdown-item py-2 text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3" th:if="${thanhCong != null or loi != null}">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 d-flex align-items-center" role="alert" th:if="${thanhCong != null}">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <span th:text="${thanhCong}">Thành công</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 d-flex align-items-center" role="alert" th:if="${loi != null}">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <span th:text="${loi}">Có lỗi</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

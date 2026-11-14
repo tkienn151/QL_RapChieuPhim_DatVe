@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>fragments/phieuve</title>
+</head>
+<body>
+
+<th:block th:fragment="phieuVe(don)">
+    <section th:if="${don != null and don.trangThai != null and don.trangThai.name() == 'DA_THANH_TOAN' and don.dsVe != null and !don.dsVe.isEmpty()}"
+             class="phieu-in-ve d-none d-print-block"
+             aria-label="Phiếu vé xem phim"
+             th:with="tenKhach=${!#strings.isEmpty(don.hoTenKhach) ? don.hoTenKhach : (don.kenhDat != null and don.kenhDat.name() == 'WEB' and don.nguoiDung != null ? don.nguoiDung.hoTen : 'Khách vãng lai')},
+                      sdtKhach=${!#strings.isEmpty(don.sdtKhach) ? don.sdtKhach : (don.kenhDat != null and don.kenhDat.name() == 'WEB' and don.nguoiDung != null ? don.nguoiDung.soDienThoai : '')}">
+        <article class="ve-in-card" th:each="ve, iter : ${don.dsVe}">
+            <div class="ve-in-top">
+                <div class="ve-in-brand">
+                    <strong>CINESTAR CINEMA</strong>
+                    <span class="ve-in-pill">VÉ XEM PHIM</span>
+                    <span class="ve-in-count" th:if="${don.dsVe.size() > 1}"
+                          th:text="|Vé ${iter.count}/${don.dsVe.size()}|">Vé 1/2</span>
+                </div>
+                <div class="ve-in-order">
+                    Mã đơn: <strong th:text="${don.maDon}">WEB001</strong>
+                    &middot; <span>ĐÃ THANH TOÁN</span>
+                </div>
+            </div>
+
+            <div class="ve-in-body">
+                <div class="ve-in-info">
+                    <div class="ve-in-film" th:text="${ve.suatChieu.phim.tenPhim}">Tên phim</div>
+                    <div class="ve-in-meta">
+                        <div>
+                            <span class="ve-in-k">Suất chiếu</span>
+                            <strong th:text="${#temporals.format(ve.suatChieu.gioBatDau, 'HH:mm - dd/MM/yyyy')}">12:00 - 15/11/2026</strong>
+                        </div>
+                        <div>
+                            <span class="ve-in-k">Phòng chiếu</span>
+                            <strong th:text="${ve.suatChieu.phongChieu.tenPhong}">Phòng 7</strong>
+                        </div>
+                        <div>
+                            <span class="ve-in-k">Hạng ghế / Giá vé</span>
+                            <strong>
+                                <span th:text="${ve.ghe.loaiGhe != null and ve.ghe.loaiGhe.name() == 'VIP' ? 'VIP' : 'Thường'}">Thường</span>
+                                &ndash;
+                                <span th:text="${ve.giaVe != null ? #numbers.formatDecimal(ve.giaVe, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}">75.000 đ</span>
+                            </strong>
+                        </div>
+                        <div>
+                            <span class="ve-in-k">Khách hàng</span>
+                            <strong>
+                                <span th:text="${tenKhach}">Khách hàng</span><span th:if="${!#strings.isEmpty(sdtKhach)}" th:text="| - ${sdtKhach}|"></span>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ve-in-stub">
+                    <div class="ve-in-label">GHẾ NGỒI</div>
+                    <div class="ve-in-ghe" th:text="${ve.ghe.nhanDang()}">A8</div>
+                    <div class="ve-in-label">MÃ SOÁT VÉ</div>
+                    <div class="ve-in-ma" th:text="${ve.maVe}">VE0001</div>
+                    <div class="ve-in-trangthai"
+                         th:text="${ve.trangThai != null ? (ve.trangThai.name() == 'HOP_LE' ? 'HỢP LỆ' : (ve.trangThai.name() == 'DA_SOAT' ? 'ĐÃ SOÁT' : 'ĐÃ HỦY')) : 'HỢP LỆ'}">
+                        HỢP LỆ
+                    </div>
+                </div>
+            </div>
+
+            <div class="ve-in-foot">
+                <span>
+                    Ngày đặt: <span th:text="${don.ngayDat != null ? #temporals.format(don.ngayDat, 'dd/MM/yyyy HH:mm') : ''}"></span>
+                    &middot; Kênh: <span th:text="${don.kenhDat}">WEB</span>
+                    &middot; Tổng đơn: <strong th:text="${don.tongTien != null ? #numbers.formatDecimal(don.tongTien, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}"></strong>
+                </span>
+                <span>Xuất trình mã vé tại cổng soát vé trước giờ chiếu</span>
+            </div>
+        </article>
+    </section>
+    <script th:if="${don != null and don.trangThai != null and don.trangThai.name() == 'DA_THANH_TOAN' and don.dsVe != null and !don.dsVe.isEmpty()}">
+        if (!window.__daGanSuKienInVe) {
+            window.__daGanSuKienInVe = true;
+            document.addEventListener('click', function (e) {
+                if (e.target.closest('[data-in-ve]')) {
+                    window.print();
+                }
+            });
+        }
+</script>
+</th:block>
+</body>
+</html>

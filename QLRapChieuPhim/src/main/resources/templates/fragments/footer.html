@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>fragments/footer</title>
+</head>
+<body>
+
+<th:block th:fragment="footer">
+    <footer class="site-footer mt-5 pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4 pb-4 border-bottom border-secondary border-opacity-25">
+                <div class="col-md-5">
+                    <div class="brand-logo mb-2">
+                        <span class="brand-badge"><i class="bi bi-film"></i></span>
+                        <span>CineStar<span class="text-danger">.</span> Cinema</span>
+                    </div>
+                    <p class="small text-white-50 mb-3">
+                        Hệ thống quản lý rạp chiếu phim và đặt vé trực tuyến hiện đại. Trải nghiệm điện ảnh sắc nét chuẩn IMAX &amp; Dolby Atmos, chọn ghế thời gian thực chỉ trong vài giây.
+                    </p>
+                    <div class="d-flex gap-2 small text-white-50">
+                        <span class="badge bg-dark border border-secondary"><i class="bi bi-badge-hd me-1 text-danger"></i>IMAX Laser</span>
+                        <span class="badge bg-dark border border-secondary"><i class="bi bi-speaker me-1 text-danger"></i>Dolby Atmos</span>
+                        <span class="badge bg-dark border border-secondary"><i class="bi bi-shield-check me-1 text-success"></i>Giữ ghế 5 phút</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6 class="text-white fw-bold mb-3">Khám phá</h6>
+                    <ul class="list-unstyled small d-grid gap-2 mb-0">
+                        <li><a class="footer-link" th:href="@{/}"><i class="bi bi-chevron-right small me-1 text-danger"></i>Trang chủ</a></li>
+                        <li><a class="footer-link" th:href="@{/phim(trangThai='DANG_CHIEU')}"><i class="bi bi-chevron-right small me-1 text-danger"></i>Phim đang chiếu</a></li>
+                        <li><a class="footer-link" th:href="@{/phim(trangThai='SAP_CHIEU')}"><i class="bi bi-chevron-right small me-1 text-danger"></i>Phim sắp chiếu</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-4">
+                    <h6 class="text-white fw-bold mb-3">Hỗ trợ khách hàng</h6>
+                    <ul class="list-unstyled small text-white-50 d-grid gap-2 mb-0">
+                        <li><i class="bi bi-telephone-fill text-danger me-2"></i>Hotline: <strong class="text-white">1900 6017</strong> (8:00 - 22:00)</li>
+                        <li><i class="bi bi-envelope-fill text-danger me-2"></i>Email: hotro@cinestar.vn</li>
+                        <li><i class="bi bi-geo-alt-fill text-danger me-2"></i>Hệ thống phòng chiếu tiêu chuẩn quốc tế</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center pt-3 small text-white-50">
+                <div>&copy; 2026 CineStar Cinema &mdash; Đồ án Quản lý rạp chiếu phim và đặt vé xem phim</div>
+                <div class="mt-2 mt-sm-0">Phát triển bởi Nhóm Đồ Án Công Nghệ Java</div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js(v=2)}"></script>
+</th:block>
+</body>
+</html>

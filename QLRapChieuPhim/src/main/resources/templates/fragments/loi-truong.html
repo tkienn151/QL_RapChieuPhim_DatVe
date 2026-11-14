@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="loiTruong(ten)" class="text-danger small mt-1"
+     th:if="${loiTruong != null and loiTruong['__${ten}__'] != null}" th:text="${loiTruong['__${ten}__']}"></div>
+</body>
+</html>
