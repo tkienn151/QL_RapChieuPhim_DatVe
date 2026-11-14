@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Chi tiết đơn đặt vé')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <a th:href="@{/lich-su}" class="btn btn-outline-secondary btn-sm">
+            &larr; Quay lại danh sách đơn vé
+        </a>
+        <button th:if="${don.trangThai.name() == 'DA_THANH_TOAN'}"
+                type="button" class="btn btn-dark btn-sm" data-in-ve>
+            <i class="bi bi-printer me-1" aria-hidden="true"></i>In vé
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+            <div>
+                <span class="fs-5 fw-bold">Chi tiết đơn đặt vé: </span>
+                <span class="fs-5 text-warning font-monospace" th:text="${don.maDon}">DON001</span>
+            </div>
+            <div>
+                <span th:if="${don.trangThai.name() == 'CHO_THANH_TOAN'}" class="badge bg-warning text-dark fs-6">Chờ thanh toán</span>
+                <span th:if="${don.trangThai.name() == 'DA_THANH_TOAN'}" class="badge bg-success fs-6">Đã thanh toán</span>
+                <span th:if="${don.trangThai.name() == 'DA_HUY'}" class="badge bg-secondary fs-6">Đã hủy</span>
+                <span th:if="${don.trangThai.name() == 'HET_HAN'}" class="badge bg-danger fs-6">Hết hạn</span>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-4">
+
+                <div class="col-md-6 border-end">
+                    <h5 class="fw-bold text-primary mb-3">📋 Thông tin đơn đặt</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-muted">Mã đơn:</dt>
+                        <dd class="col-sm-8 font-monospace fw-bold" th:text="${don.maDon}">DON001</dd>
+
+                        <dt class="col-sm-4 text-muted">Kênh đặt:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info text-dark" th:text="${don.kenhDat}">WEB</span>
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Thời gian đặt:</dt>
+                        <dd class="col-sm-8" th:text="${#temporals.format(don.ngayDat, 'dd/MM/yyyy HH:mm:ss')}">20/11/2026 18:00:00</dd>
+
+                        <dt class="col-sm-4 text-muted">Khách hàng:</dt>
+                        <dd class="col-sm-8 fw-semibold"
+                            th:text="${don.nguoiDung != null ? don.nguoiDung.hoTen : (don.hoTenKhach != null ? don.hoTenKhach : 'Khách vãng lai')}">
+                            Nguyễn Văn A
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Số điện thoại:</dt>
+                        <dd class="col-sm-8"
+                            th:text="${don.nguoiDung != null ? don.nguoiDung.soDienThoai : (don.sdtKhach != null ? don.sdtKhach : 'Không có')}">
+                            0901234567
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Tổng thanh toán:</dt>
+                        <dd class="col-sm-8 fs-5 fw-bold text-danger"
+                            th:text="${#numbers.formatDecimal(don.tongTien, 0, 'POINT', 0, 'COMMA')} + ' đ'">
+                            190.000 đ
+                        </dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-6" th:if="${don.dsVe != null and !don.dsVe.isEmpty() and don.dsVe[0].suatChieu != null}">
+                    <h5 class="fw-bold text-primary mb-3">🎬 Thông tin suất chiếu</h5>
+                    <div class="d-flex gap-3">
+                        <img th:if="${don.dsVe != null and !don.dsVe.isEmpty() and don.dsVe[0].suatChieu != null}"
+                             th:src="${#strings.isEmpty(don.dsVe[0].suatChieu.phim.poster)} ? @{/images/no-poster.svg(v=2)} : ((${#strings.startsWith(don.dsVe[0].suatChieu.phim.poster, 'http')} or ${#strings.startsWith(don.dsVe[0].suatChieu.phim.poster, '/')}) ? ${don.dsVe[0].suatChieu.phim.poster} : @{/images/posters/{p}(p=${don.dsVe[0].suatChieu.phim.poster},v=2)})"
+                             onerror="this.src='/images/no-poster.svg'"
+                             th:alt="${don.dsVe[0].suatChieu.phim.tenPhim}"
+                             class="poster rounded shadow-sm" style="width: 100px; height: 145px; object-fit: cover;">
+                        <div>
+                            <h5 class="fw-bold mb-1" th:text="${don.dsVe[0].suatChieu.phim.tenPhim}">Tên phim</h5>
+                            <p class="text-muted small mb-2">
+                                Thời lượng: <span th:text="${don.dsVe[0].suatChieu.phim.thoiLuong}">120</span> phút
+                            </p>
+                            <p class="mb-1">
+                                <strong>Phòng chiếu:</strong>
+                                <span class="badge bg-secondary" th:text="${don.dsVe[0].suatChieu.phongChieu.tenPhong}">Phòng 1</span>
+                            </p>
+                            <p class="mb-1">
+                                <strong>Giờ bắt đầu:</strong>
+                                <span class="text-success fw-bold" th:text="${#temporals.format(don.dsVe[0].suatChieu.gioBatDau, 'HH:mm dd/MM/yyyy')}">18:00 20/11/2026</span>
+                            </p>
+                            <p class="mb-0">
+                                <strong>Giờ kết thúc:</strong>
+                                <span class="text-muted" th:text="${#temporals.format(don.dsVe[0].suatChieu.gioKetThuc, 'HH:mm dd/MM/yyyy')}">20:00 20/11/2026</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top">
+                <h5 class="fw-bold text-primary mb-3">🎟️ Danh sách vé &amp; ghế ngồi</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;">STT</th>
+                                <th>Mã vé</th>
+                                <th>Vị trí ghế</th>
+                                <th>Loại ghế</th>
+                                <th>Giá vé</th>
+                                <th>Trạng thái vé</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="ve, iter : ${don.dsVe}">
+                                <td th:text="${iter.count}">1</td>
+                                <td>
+                                    <span class="font-monospace fw-bold" th:text="${ve.maVe}">VE01</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark font-monospace fs-6" th:text="${ve.ghe.nhanDang()}">A1</span>
+                                </td>
+                                <td>
+                                    <span th:if="${ve.ghe.loaiGhe.name() == 'VIP'}" class="badge bg-danger">VIP</span>
+                                    <span th:if="${ve.ghe.loaiGhe.name() == 'THUONG'}" class="badge bg-secondary">Thường</span>
+                                </td>
+                                <td class="fw-semibold text-end pe-3"
+                                    th:text="${#numbers.formatDecimal(ve.giaVe, 0, 'POINT', 0, 'COMMA')} + ' đ'">
+                                    80.000 đ
+                                </td>
+                                <td>
+                                    <span th:if="${ve.trangThai.name() == 'HOP_LE'}" class="badge bg-success">Hợp lệ</span>
+                                    <span th:if="${ve.trangThai.name() == 'DA_SOAT'}" class="badge bg-primary">Đã soát</span>
+                                    <span th:if="${ve.trangThai.name() == 'DA_HUY'}" class="badge bg-secondary">Đã hủy</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light fw-bold">
+                                <td colspan="4" class="text-end">Tổng cộng:</td>
+                                <td class="text-end text-danger fs-6 pe-3"
+                                    th:text="${#numbers.formatDecimal(don.tongTien, 0, 'POINT', 0, 'COMMA')} + ' đ'">
+                                    190.000 đ
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div th:if="${coTheThanhToan}" class="card border-success mt-4 shadow-sm">
+                <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span>💳 Tiếp tục thanh toán đơn giữ ghế</span>
+                    <small th:if="${don.hanThanhToan != null}">
+                        Hạn giữ ghế: <span th:text="${#temporals.format(don.hanThanhToan, 'HH:mm:ss dd/MM/yyyy')}"></span>
+                    </small>
+                </div>
+                <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <p class="card-text text-muted mb-0">
+                        Đơn đặt vé đang được giữ ghế tạm thời. Vui lòng hoàn tất thanh toán trước khi hết hạn 5 phút để xuất mã vé, hoặc hủy giữ ghế để chọn lại.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a th:href="@{/dat-ve/thanh-toan(maDon=${don.maDon})}" class="btn btn-success fw-bold">
+                            💳 Thanh toán ngay
+                        </a>
+                        <form th:action="@{/dat-ve/huy-giu-ghe}" method="post" class="m-0"
+                              data-xac-nhan="Bạn có chắc chắn muốn hủy giữ ghế cho đơn này không? Toàn bộ ghế sẽ được trả về trạng thái trống.">
+                            <input type="hidden" name="maDon" th:value="${don.maDon}">
+                            <button type="submit" class="btn btn-outline-danger">
+                                Hủy giữ ghế
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${coTheHuy and !coTheThanhToan}" class="card border-danger mt-4 shadow-sm">
+                <div class="card-header bg-danger text-white fw-bold">
+                    ⚠️ Hủy đơn đặt vé
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted mb-3">
+                        Bạn có thể hủy đơn đặt vé này khi còn cách giờ chiếu ít nhất <strong>60 phút</strong> và chưa có vé nào được soát vào rạp.
+                        Sau khi xác nhận hủy, đơn hàng sẽ chuyển sang trạng thái <strong>ĐÃ HỦY</strong> và toàn bộ ghế sẽ được hoàn trả lại hệ thống.
+                    </p>
+                    <form th:action="@{/lich-su/huy}" method="post"
+                          data-xac-nhan="Bạn có chắc chắn muốn hủy đơn vé này không? Toàn bộ ghế sẽ được hoàn trả về hệ thống.">
+                        <input type="hidden" name="maDon" th:value="${don.maDon}">
+                        <input type="hidden" name="id" th:value="${don.id}">
+                        <button type="submit" class="btn btn-danger">
+                            Xác nhận hủy đơn vé
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${!coTheHuy and !coTheThanhToan}" class="mt-4">
+                <div th:if="${don.trangThai.name() == 'DA_HUY'}" class="alert alert-secondary mb-0">
+                    ℹ️ Đơn đặt vé này đã được hủy trước đó. Toàn bộ ghế đã được giải phóng.
+                </div>
+                <div th:if="${don.trangThai.name() == 'HET_HAN'}" class="alert alert-danger mb-0">
+                    ℹ️ Đơn đặt vé này đã hết hạn thanh toán.
+                </div>
+                <div th:if="${don.trangThai.name() != 'DA_HUY' and don.trangThai.name() != 'HET_HAN'}" class="alert alert-warning mb-0">
+                    ℹ️ Đơn đặt vé không thể hủy do không đủ điều kiện (đã có vé soát vào rạp hoặc thời gian cách giờ chiếu dưới 60 phút).
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block th:replace="~{fragments/phieuve :: phieuVe(${don})}"></th:block>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>
