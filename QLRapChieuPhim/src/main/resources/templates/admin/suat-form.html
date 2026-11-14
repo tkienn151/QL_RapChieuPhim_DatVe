@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head(${laThemMoi} ? 'Thêm suất chiếu' : 'Cập nhật suất chiếu')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+                <li class="breadcrumb-item text-muted">Quản trị</li>
+                <li class="breadcrumb-item"><a th:href="@{/admin/suat}">Suất chiếu</a></li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="${laThemMoi} ? 'Thêm mới' : 'Cập nhật'">Thêm mới</li>
+            </ol>
+        </nav>
+        <h2 class="h4 mb-0 fw-bold" th:text="${laThemMoi} ? '➕ Thêm suất chiếu mới' : '✏️ Cập nhật suất chiếu'">
+            Thêm suất chiếu
+        </h2>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form th:action="${laThemMoi} ? @{/admin/suat/them} : @{/admin/suat/sua/{id}(id=${suatChieu.id})}"
+                          method="post"
+                          id="formSuatChieu">
+
+                        <input type="hidden" name="id" th:value="${suatChieu.id}" th:if="${suatChieu.id != null}">
+
+                        <div class="mb-3">
+                            <label for="phimId" class="form-label fw-semibold">
+                                Phim <span class="text-danger">*</span>
+                            </label>
+                            <select id="phimId" name="phimId" class="form-select" required>
+                                <option value="">-- Vui lòng chọn phim --</option>
+                                <option th:each="p : ${dsPhim}"
+                                        th:value="${p.id}"
+                                        th:text="|${p.tenPhim} (${p.thoiLuong} phút)|"
+                                        th:attr="data-thoiluong=${p.thoiLuong}"
+                                        th:selected="${p.id == phimId}">
+                                    Tên phim (120 phút)
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phongChieuId" class="form-label fw-semibold">
+                                Phòng chiếu <span class="text-danger">*</span>
+                            </label>
+                            <select id="phongChieuId" name="phongChieuId" class="form-select" required>
+                                <option value="">-- Vui lòng chọn phòng chiếu --</option>
+                                <option th:each="ph : ${dsPhong}"
+                                        th:value="${ph.id}"
+                                        th:text="|${ph.tenPhong} (${ph.tongSoGhe()} ghế)|"
+                                        th:selected="${ph.id == phongChieuId}">
+                                    Phòng 1 (100 ghế)
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="gioBatDau" class="form-label fw-semibold">
+                                    Giờ bắt đầu <span class="text-danger">*</span>
+                                </label>
+                                <input type="datetime-local"
+                                       id="gioBatDau"
+                                       name="gioBatDau"
+                                       class="form-control"
+                                       th:value="${#temporals.format(suatChieu.gioBatDau, 'yyyy-MM-dd''T''HH:mm')}"
+                                       required>
+                                <div th:replace="~{fragments/loi-truong :: loiTruong('gioBatDau')}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="gioKetThuc" class="form-label fw-semibold">
+                                    Giờ kết thúc (dự kiến)
+                                </label>
+                                <input type="datetime-local"
+                                       id="gioKetThuc"
+                                       class="form-control bg-light"
+                                       th:value="${#temporals.format(suatChieu.gioKetThuc, 'yyyy-MM-dd''T''HH:mm')}"
+                                       readonly
+                                       disabled>
+                            </div>
+                            <div class="col-12 mt-1">
+                                <small class="text-muted fst-italic">
+                                    ℹ️ Giờ kết thúc được tự động tính toán dựa trên Giờ bắt đầu và Thời lượng của phim đã chọn.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="giaThuong" class="form-label fw-semibold">
+                                    Giá vé thường (VNĐ) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number"
+                                           id="giaThuong"
+                                           name="giaThuong"
+                                           class="form-control"
+                                           th:value="${suatChieu.giaThuong}"
+                                           min="0"
+                                           step="1000"
+                                           required>
+                                    <span class="input-group-text">đ</span>
+                                </div>
+                                <div th:replace="~{fragments/loi-truong :: loiTruong('giaThuong')}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="giaVip" class="form-label fw-semibold">
+                                    Giá vé VIP (VNĐ) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number"
+                                           id="giaVip"
+                                           name="giaVip"
+                                           class="form-control"
+                                           th:value="${suatChieu.giaVip}"
+                                           min="0"
+                                           step="1000"
+                                           required>
+                                    <span class="input-group-text">đ</span>
+                                </div>
+                                <div th:replace="~{fragments/loi-truong :: loiTruong('giaVip')}"></div>
+                            </div>
+                            <div class="col-12 mt-1">
+                                <small class="text-muted fst-italic">
+                                    ℹ️ Giá vé VIP phải lớn hơn hoặc bằng giá vé thường.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="trangThai" class="form-label fw-semibold">
+                                Trạng thái suất chiếu <span class="text-danger">*</span>
+                            </label>
+                            <select id="trangThai" name="trangThai" class="form-select" required>
+                                <option th:each="tt : ${dsTrangThai}"
+                                        th:value="${tt}"
+                                        th:text="${tt.name() == 'MO_BAN' ? 'Mở bán' : (tt.name() == 'DA_DONG' ? 'Đã đóng' : 'Đã hủy')}"
+                                        th:selected="${suatChieu.trangThai == tt}">
+                                    Mở bán
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                            <a th:href="@{/admin/suat}" class="btn btn-outline-secondary">
+                                Quay lại danh sách
+                            </a>
+                            <button type="submit" class="btn btn-danger px-4">
+                                <span th:text="${laThemMoi} ? 'Thêm suất chiếu' : 'Lưu thay đổi'">Lưu</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const phimSelect = document.getElementById('phimId');
+    const gioBatDauInput = document.getElementById('gioBatDau');
+    const gioKetThucInput = document.getElementById('gioKetThuc');
+
+    function capNhatGioKetThuc() {
+        const selectedOption = phimSelect.options[phimSelect.selectedIndex];
+        const thoiLuong = selectedOption ? parseInt(selectedOption.getAttribute('data-thoiluong') || '0', 10) : 0;
+        const batDauVal = gioBatDauInput.value;
+
+        if (batDauVal && thoiLuong > 0) {
+            const dt = new Date(batDauVal);
+            if (!isNaN(dt.getTime())) {
+                dt.setMinutes(dt.getMinutes() + thoiLuong);
+                const year = dt.getFullYear();
+                const month = String(dt.getMonth() + 1).padStart(2, '0');
+                const day = String(dt.getDate()).padStart(2, '0');
+                const hours = String(dt.getHours()).padStart(2, '0');
+                const minutes = String(dt.getMinutes()).padStart(2, '0');
+                gioKetThucInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+        }
+    }
+
+    if (phimSelect && gioBatDauInput && gioKetThucInput) {
+        phimSelect.addEventListener('change', capNhatGioKetThuc);
+        gioBatDauInput.addEventListener('change', capNhatGioKetThuc);
+        gioBatDauInput.addEventListener('input', capNhatGioKetThuc);
+        capNhatGioKetThuc();
+    }
+});
+</script>
+</body>
+</html>

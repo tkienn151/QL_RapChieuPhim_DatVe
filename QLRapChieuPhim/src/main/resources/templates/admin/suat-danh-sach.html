@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Quản lý suất chiếu')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+
+<main class="container py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+                    <li class="breadcrumb-item text-muted">Quản trị</li>
+                    <li class="breadcrumb-item active" aria-current="page">Suất chiếu</li>
+                </ol>
+            </nav>
+            <h2 class="h4 mb-0 fw-bold">🎬 Quản lý suất chiếu</h2>
+        </div>
+        <div>
+            <a th:href="@{/admin/suat/them}" class="btn btn-danger">
+                <span>➕ Thêm suất chiếu mới</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/admin/suat}" method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Phim</label>
+                    <select name="phimId" class="form-select">
+                        <option value="">-- Tất cả phim --</option>
+                        <option th:each="p : ${dsPhim}"
+                                th:value="${p.id}"
+                                th:text="${p.tenPhim}"
+                                th:selected="${p.id == phimId}">Tên phim</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Phòng chiếu</label>
+                    <select name="phongId" class="form-select">
+                        <option value="">-- Tất cả phòng chiếu --</option>
+                        <option th:each="ph : ${dsPhong}"
+                                th:value="${ph.id}"
+                                th:text="${ph.tenPhong}"
+                                th:selected="${ph.id == phongId}">Phòng chiếu</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">Ngày chiếu</label>
+                    <input type="date" name="ngay" th:value="${ngay}" class="form-control">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">Trạng thái</label>
+                    <select name="trangThai" class="form-select">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="MO_BAN" th:selected="${trangThai != null and trangThai.name() == 'MO_BAN'}">Mở bán</option>
+                        <option value="DA_DONG" th:selected="${trangThai != null and trangThai.name() == 'DA_DONG'}">Đã đóng</option>
+                        <option value="DA_HUY" th:selected="${trangThai != null and trangThai.name() == 'DA_HUY'}">Đã hủy</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">Sắp xếp</label>
+                    <div class="input-group">
+                        <select name="sapXep" class="form-select">
+                            <option value="gioBatDau" th:selected="${sapXep == null or sapXep == 'gioBatDau'}">Giờ chiếu</option>
+                            <option value="giaThuong" th:selected="${sapXep == 'giaThuong'}">Giá thường</option>
+                            <option value="giaVip" th:selected="${sapXep == 'giaVip'}">Giá VIP</option>
+                        </select>
+                        <select name="tang" class="form-select" style="max-width: 85px;">
+                            <option value="false" th:selected="${tang == null or !tang}">Giảm</option>
+                            <option value="true" th:selected="${tang != null and tang}">Tăng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-12 d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-primary">🔍 Lọc &amp; Sắp xếp</button>
+                    <a th:href="@{/admin/suat}" class="btn btn-outline-secondary" title="Xóa bộ lọc">↺ Xóa lọc</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Danh sách suất chiếu</span>
+            <span class="badge bg-secondary" th:text="|Tổng: ${page.totalElements} suất|">Tổng: 0</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" style="width: 50px;" class="text-center">#</th>
+                        <th scope="col">Phim</th>
+                        <th scope="col">Phòng</th>
+                        <th scope="col">Giờ bắt đầu</th>
+                        <th scope="col">Giờ kết thúc</th>
+                        <th scope="col">Giá thường</th>
+                        <th scope="col">Giá VIP</th>
+                        <th scope="col" class="text-center">Trạng thái</th>
+                        <th scope="col" class="text-end" style="min-width: 170px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${dsSuat == null or #lists.isEmpty(dsSuat)}">
+                        <td colspan="9" class="text-center py-4 text-muted">
+                            Không tìm thấy suất chiếu nào phù hợp.
+                        </td>
+                    </tr>
+                    <tr th:each="s, stat : ${dsSuat}">
+                        <td class="text-center text-muted" th:text="${page.number * page.size + stat.count}">1</td>
+                        <td>
+                            <div class="fw-semibold" th:text="${s.phim.tenPhim}">Tên phim</div>
+                            <small class="text-muted" th:text="|${s.phim.thoiLuong} phút|">120 phút</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border" th:text="${s.phongChieu.tenPhong}">Phòng 1</span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold" th:text="${#temporals.format(s.gioBatDau, 'dd/MM/yyyy HH:mm')}">01/01/2026 09:00</span>
+                        </td>
+                        <td>
+                            <span class="text-muted" th:text="${#temporals.format(s.gioKetThuc, 'dd/MM/yyyy HH:mm')}">01/01/2026 11:00</span>
+                        </td>
+                        <td>
+                            <span th:text="${#numbers.formatDecimal(s.giaThuong, 0, 'POINT', 0, 'COMMA')} + ' đ'">75.000 đ</span>
+                        </td>
+                        <td>
+                            <span class="text-danger fw-semibold" th:text="${#numbers.formatDecimal(s.giaVip, 0, 'POINT', 0, 'COMMA')} + ' đ'">95.000 đ</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${s.trangThai.name() == 'MO_BAN'}" class="badge bg-success">Mở bán</span>
+                            <span th:if="${s.trangThai.name() == 'DA_DONG'}" class="badge bg-secondary">Đã đóng</span>
+                            <span th:if="${s.trangThai.name() == 'DA_HUY'}" class="badge bg-danger">Đã hủy</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/admin/suat/sua/{id}(id=${s.id})}" class="btn btn-outline-primary" title="Chỉnh sửa">
+                                    ✏️ Sửa
+                                </a>
+                                <form th:if="${s.trangThai.name() != 'DA_HUY'}"
+                                      th:action="@{/admin/suat/huy/{id}(id=${s.id})}"
+                                      method="post"
+                                      class="d-inline"
+                                      data-xac-nhan="Bạn có chắc chắn muốn hủy suất chiếu này?">
+                                    <button type="submit" class="btn btn-outline-warning" title="Hủy suất chiếu">
+                                        🚫 Hủy
+                                    </button>
+                                </form>
+                                <form th:action="@{/admin/suat/xoa/{id}(id=${s.id})}"
+                                      method="post"
+                                      class="d-inline"
+                                      data-xac-nhan="Bạn có chắc chắn muốn xóa suất chiếu này?">
+                                    <button type="submit" class="btn btn-outline-danger" title="Xóa suất chiếu">
+                                        🗑️ Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white py-3" th:if="${page.totalPages > 1}">
+            <nav th:replace="~{fragments/phantrang :: phanTrang(${page}, ${duongDan})}"></nav>
+        </div>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>
