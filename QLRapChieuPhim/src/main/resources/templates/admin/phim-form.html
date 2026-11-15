@@ -34,6 +34,7 @@
                     <option value="">-- Chọn thể loại --</option>
                     <option th:each="tl : ${dsTheLoai}" th:value="${tl.id}" th:text="${tl.tenTheLoai}" th:selected="${phim.theLoai != null and phim.theLoai.id == tl.id}"></option>
                 </select>
+                <div th:replace="~{fragments/loi-truong :: loiTruong('theLoaiId')}"></div>
                 <div class="mt-2 d-flex align-items-center gap-2">
                     <img id="previewPosterImg"
                          th:src="${#strings.isEmpty(phim.poster)} ? @{/images/no-poster.svg} : ((${#strings.startsWith(phim.poster, 'http')} or ${#strings.startsWith(phim.poster, '/')}) ? ${phim.poster} : @{/images/posters/{f}(f=${phim.poster})})"

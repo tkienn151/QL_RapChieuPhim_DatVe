@@ -190,4 +190,46 @@ public class DatVeService {
         huyGiuGhe(donDat, TrangThaiDon.HET_HAN);
         return true;
     }
+
+    @Transactional
+    public SuatChieu chuanBiChonGhe(Long suatId) {
+        SuatChieu suatChieu = suatChieuRepo.findByIdWithDetails(suatId)
+                .or(() -> suatChieuRepo.findById(suatId))
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy suất chiếu"));
+        if (!suatChieu.conMoBan() || !suatChieu.getGioBatDau().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Suất chiếu đã đóng hoặc đã bắt đầu.");
+        }
+        donGheQuaHanTheoSuat(suatId);
+        return suatChieu;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Ghe> layDanhSachGheTheoPhong(Long phongChieuId) {
+        return gheRepo.findByPhongChieuIdOrderByHangAscSoGheAsc(phongChieuId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> layDanhSachGheDaDat(Long suatId) {
+        return veRepo.findGheDaDat(suatId);
+    }
+
+    @Transactional(readOnly = true)
+    public DonDat layDonCuaNguoiDung(String maDon, Long nguoiDungId, String thongBaoKhongCoQuyen) {
+        DonDat donDat = donDatRepo.findByMaDon(maDon)
+                .orElseThrow(() -> new IllegalArgumentException("Đơn không tồn tại"));
+        if (donDat.getNguoiDung() == null || nguoiDungId == null || !donDat.getNguoiDung().getId().equals(nguoiDungId)) {
+            throw new IllegalArgumentException(thongBaoKhongCoQuyen);
+        }
+        return donDat;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean suatConMoBan(Long suatId) {
+        if (suatId == null) {
+            return false;
+        }
+        return suatChieuRepo.findById(suatId)
+                .map(sc -> sc.conMoBan() && sc.getGioBatDau().isAfter(LocalDateTime.now()))
+                .orElse(false);
+    }
 }

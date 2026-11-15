@@ -34,19 +34,24 @@ public class TraCuuVeController {
     @GetMapping
     public String traCuu(@RequestParam(required = false) String tuKhoa,
                          @RequestParam(required = false) String maDon,
+                         @RequestParam(defaultValue = "ngayDat") String sapXep,
+                         @RequestParam(defaultValue = "false") boolean tang,
                          @RequestParam(defaultValue = "0") int trang,
                          Model model) {
         datVeService.donTatCaGheQuaHan();
 
         String tk = tuKhoa == null ? "" : tuKhoa.trim();
-        PageRequest pageable = tk.isEmpty()
-                ? PageRequest.of(Math.max(trang, 0), 10, Sort.by(Sort.Direction.DESC, "ngayDat"))
-                : PageRequest.of(Math.max(trang, 0), 10);
+        String cot = "tongTien".equals(sapXep) ? "tongTien" : ("maDon".equals(sapXep) ? "maDon" : "ngayDat");
+        Sort.Direction huong = tang ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(huong, cot).and(Sort.by(Sort.Direction.ASC, "id"));
+        PageRequest pageable = PageRequest.of(Math.max(trang, 0), 10, sort);
+
         Page<DonDat> page = veService.traCuuDon(tk, pageable);
         model.addAttribute("page", page);
         model.addAttribute("tuKhoa", tk);
-        model.addAttribute("duongDan", tk.isEmpty() ? "/tra-cuu"
-                : "/tra-cuu?tuKhoa=" + URLEncoder.encode(tk, StandardCharsets.UTF_8));
+        model.addAttribute("sapXep", cot);
+        model.addAttribute("tang", tang);
+        model.addAttribute("duongDan", taoDuongDan(tk, cot, tang));
 
         if (maDon != null && !maDon.isBlank()) {
             try {
@@ -104,5 +109,14 @@ public class TraCuuVeController {
             ra.addFlashAttribute("loi", e.getMessage());
         }
         return "redirect:/tra-cuu?maDon=" + maMa;
+    }
+
+    private String taoDuongDan(String tuKhoa, String sapXep, boolean tang) {
+        StringBuilder sb = new StringBuilder("/tra-cuu?sapXep=").append(sapXep)
+                .append("&tang=").append(tang);
+        if (tuKhoa != null && !tuKhoa.isEmpty()) {
+            sb.append("&tuKhoa=").append(URLEncoder.encode(tuKhoa, StandardCharsets.UTF_8));
+        }
+        return sb.toString();
     }
 }

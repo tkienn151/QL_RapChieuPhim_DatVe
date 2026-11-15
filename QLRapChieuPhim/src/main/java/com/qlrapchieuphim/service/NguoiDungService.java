@@ -3,11 +3,18 @@ package com.qlrapchieuphim.service;
 import com.qlrapchieuphim.config.PasswordUtil;
 import com.qlrapchieuphim.entity.NguoiDung;
 import com.qlrapchieuphim.entity.enums.VaiTro;
+import com.qlrapchieuphim.repository.DonDatRepository;
 import com.qlrapchieuphim.repository.NguoiDungRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -19,9 +26,11 @@ public class NguoiDungService {
     public static final int MAT_KHAU_TOI_THIEU = 6;
 
     private final NguoiDungRepository nguoiDungRepo;
+    private final DonDatRepository donDatRepo;
 
-    public NguoiDungService(NguoiDungRepository nguoiDungRepo) {
+    public NguoiDungService(NguoiDungRepository nguoiDungRepo, DonDatRepository donDatRepo) {
         this.nguoiDungRepo = nguoiDungRepo;
+        this.donDatRepo = donDatRepo;
     }
 
     public static boolean tenDangNhapHopLe(String ten) {
@@ -110,6 +119,115 @@ public class NguoiDungService {
             throw new LoiTruongException("matKhauMoi","Mật khẩu mới phải khác mật khẩu hiện tại.");
         nd.setMatKhau(PasswordUtil.bam(matKhauMoi));
         nguoiDungRepo.save(nd);
+    }
+
+    public static String chuanHoaCotSapXep(String sapXep) {
+        return "tenDangNhap".equals(sapXep) ? "tenDangNhap" : ("hoTen".equals(sapXep) ? "hoTen" : "id");
+    }
+
+    @Transactional(readOnly = true)
+    public Page<NguoiDung> timKiemTaiKhoan(String tuKhoa, VaiTro vaiTro, String sapXep, boolean tang, int trang, int kichThuoc) {
+        String tk = chuanHoa(tuKhoa);
+        String cot = chuanHoaCotSapXep(sapXep);
+        Sort.Direction huong = tang ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = "id".equals(cot)
+                ? Sort.by(huong, cot)
+                : Sort.by(huong, cot).and(Sort.by(Sort.Direction.ASC, "id"));
+        return nguoiDungRepo.timKiemTaiKhoan(tk, vaiTro, PageRequest.of(Math.max(trang, 0), Math.max(kichThuoc, 1), sort));
+    }
+
+    @Transactional
+    public NguoiDung themTaiKhoanNoiBo(String tenDangNhap, String matKhau, String hoTen,
+                                       String email, String soDienThoai, VaiTro vaiTro) {
+        String ten = tenDangNhap == null ? "" : tenDangNhap.trim();
+        String em = chuanHoa(email);
+        String sdt = chuanHoa(soDienThoai);
+        Map<String, String> loiTruong = new LinkedHashMap<>();
+
+        if (!tenDangNhapHopLe(ten)) {
+            loiTruong.put("tenDangNhap", "Tên đăng nhập gồm 3-50 ký tự, chỉ gồm chữ không dấu, số, dấu gạch dưới (_) và dấu chấm (.).");
+        } else if (nguoiDungRepo.existsByTenDangNhap(ten)) {
+            loiTruong.put("tenDangNhap", "Tên đăng nhập đã tồn tại!");
+        }
+        if (matKhau == null || matKhau.length() < MAT_KHAU_TOI_THIEU) {
+            loiTruong.put("matKhau", "Mật khẩu phải có ít nhất 6 ký tự.");
+        } else if (matKhau.length() > 50) {
+            loiTruong.put("matKhau", "Mật khẩu tối đa 50 ký tự.");
+        }
+        if (hoTen == null || hoTen.isBlank()) {
+            loiTruong.put("hoTen", "Họ tên không được để trống.");
+        } else if (hoTen.trim().length() > 100) {
+            loiTruong.put("hoTen", "Họ tên tối đa 100 ký tự.");
+        }
+        if (em != null) {
+            if (em.length() > 100) {
+                loiTruong.put("email", "Email tối đa 100 ký tự.");
+            } else if (!emailHopLe(em)) {
+                loiTruong.put("email", "Email không đúng định dạng.");
+            }
+        }
+        if (sdt != null && !soDienThoaiHopLe(sdt)) {
+            loiTruong.put("soDienThoai", "Số điện thoại không đúng định dạng (10 số, bắt đầu bằng 0 hoặc +84).");
+        }
+        if (vaiTro == null || vaiTro == VaiTro.KHACH_HANG) {
+            loiTruong.put("vaiTro", "Trang này chỉ tạo tài khoản nhân viên hoặc quản trị.");
+        }
+
+        if (!loiTruong.isEmpty()) {
+            throw new LoiTruongException(loiTruong, "Vui lòng kiểm tra lại các ô báo lỗi.");
+        }
+
+        NguoiDung nd = new NguoiDung();
+        nd.setTenDangNhap(ten);
+        nd.setMatKhau(PasswordUtil.bam(matKhau));
+        nd.setHoTen(hoTen.trim());
+        nd.setEmail(em);
+        nd.setSoDienThoai(sdt);
+        nd.setVaiTro(vaiTro);
+        nd.setHoatDong(true);
+        try {
+            return nguoiDungRepo.save(nd);
+        } catch (DataIntegrityViolationException e) {
+            throw new LoiTruongException(Map.of("tenDangNhap", "Tên đăng nhập đã tồn tại!"), "Vui lòng kiểm tra lại các ô báo lỗi.");
+        }
+    }
+
+    @Transactional
+    public Optional<Boolean> khoaMoTaiKhoan(Long id, Long nguoiThucHienId) {
+        if (nguoiThucHienId != null && nguoiThucHienId.equals(id)) {
+            throw new IllegalStateException("Không thể tự khóa tài khoản đang đăng nhập.");
+        }
+        return nguoiDungRepo.findById(id).map(nd -> {
+            nd.setHoatDong(!nd.isHoatDong());
+            nguoiDungRepo.save(nd);
+            return nd.isHoatDong();
+        });
+    }
+
+    @Transactional
+    public Optional<NguoiDung> doiVaiTro(Long id, VaiTro vaiTro, Long nguoiThucHienId) {
+        if (nguoiThucHienId != null && nguoiThucHienId.equals(id) && vaiTro != VaiTro.QUAN_TRI) {
+            throw new IllegalStateException("Không thể tự hạ quyền của tài khoản quản trị đang đăng nhập.");
+        }
+        return nguoiDungRepo.findById(id).map(nd -> {
+            nd.setVaiTro(vaiTro);
+            return nguoiDungRepo.save(nd);
+        });
+    }
+
+    @Transactional
+    public Optional<String> xoaTaiKhoan(Long id, Long nguoiThucHienId) {
+        if (nguoiThucHienId != null && nguoiThucHienId.equals(id)) {
+            throw new IllegalStateException("Không thể tự xóa tài khoản đang đăng nhập.");
+        }
+        if (donDatRepo.existsByNguoiDungId(id)) {
+            throw new IllegalStateException("Không thể xóa tài khoản đã phát sinh đơn đặt vé. Hãy sử dụng chức năng Khóa tài khoản.");
+        }
+        return nguoiDungRepo.findById(id).map(nd -> {
+            String ten = nd.getTenDangNhap();
+            nguoiDungRepo.delete(nd);
+            return ten;
+        });
     }
 
     private String chuanHoa(String s) {

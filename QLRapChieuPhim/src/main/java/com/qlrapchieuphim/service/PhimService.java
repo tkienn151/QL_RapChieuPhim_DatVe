@@ -140,10 +140,10 @@ public class PhimService {
 
     private TheLoai layTheLoai(Long theLoaiId) {
         if (theLoaiId == null) {
-            throw new IllegalArgumentException("Vui lòng chọn thể loại.");
+            throw new LoiTruongException("theLoaiId", "Vui lòng chọn thể loại.");
         }
         return theLoaiRepo.findById(theLoaiId)
-                .orElseThrow(() -> new IllegalArgumentException("Thể loại không tồn tại."));
+                .orElseThrow(() -> new LoiTruongException("theLoaiId", "Thể loại không tồn tại."));
     }
 
     private void kiemTra(Phim p) {

@@ -132,7 +132,12 @@ INSERT INTO TheLoai (TenTheLoai, MoTa) VALUES
     (N'Võ thuật', N'Phim võ thuật, kung fu'),
     (N'Bí ẩn', N'Phim bí ẩn, trinh thám'),
     (N'Thiếu nhi', N'Phim dành cho thiếu nhi'),
-    (N'Viễn Tây', N'Phim cao bồi miền Tây');
+    (N'Viễn Tây', N'Phim cao bồi miền Tây'),
+    (N'Học đường', N'Phim thanh xuân, tuổi học trò'),
+    (N'Trinh thám', N'Phim phá án, suy luận'),
+    (N'Chính kịch', N'Phim chính kịch, xã hội'),
+    (N'Kỳ ảo', N'Phim thần thoại, thế giới kỳ ảo'),
+    (N'Siêu anh hùng', N'Phim siêu anh hùng, đa vũ trụ');
 GO
 
 INSERT INTO Phim (MaPhim, TenPhim, MoTa, ThoiLuong, NgayKhoiChieu, DaoDien, DienVien, Poster, TrangThai, TheLoaiId) VALUES
@@ -155,7 +160,12 @@ INSERT INTO Phim (MaPhim, TenPhim, MoTa, ThoiLuong, NgayKhoiChieu, DaoDien, Dien
     (N'P017', N'Oppenheimer', N'Bộ phim tiểu sử lịch sử đoạt giải Oscar kể về nhà vật lý lý thuyết J. Robert Oppenheimer và dự án Manhattan chế tạo bom nguyên tử.', 180, DATEADD(DAY, 21, CAST(GETDATE() AS DATE)), N'Christopher Nolan', N'Cillian Murphy, Emily Blunt, Matt Damon, Robert Downey Jr.', N'phim17.jpg', N'SAP_CHIEU', 14),
     (N'P018', N'Hành Trình Của Moana 2 (Moana 2)', N'Moana và á thần Maui tái hợp trong chuyến hải trình vượt đại dương xa xôi sau khi nhận được tiếng gọi từ tổ tiên.', 100, DATEADD(DAY, 28, CAST(GETDATE() AS DATE)), N'David Derrick Jr.', N'Auli''i Cravalho, Dwayne Johnson', N'phim18.jpg', N'SAP_CHIEU', 7),
     (N'P019', N'Bố Già', N'Tình phụ tử cảm động giữa ông Ba Sang làm nghề chở hàng thuê trong con hẻm nhỏ Sài Gòn và cậu con trai cá tính Quắn.', 128, DATEADD(DAY, -120, CAST(GETDATE() AS DATE)), N'Trấn Thành, Vũ Ngọc Đãng', N'Trấn Thành, Tuấn Trần, Ngân Chi, NSND Ngọc Giàu', N'phim19.jpg', N'NGUNG_CHIEU', 12),
-    (N'P020', N'Avengers: Hồi Kết (Avengers: Endgame)', N'Trận chiến lịch sử cuối cùng của biệt đội siêu anh hùng Avengers nhằm đảo ngược cú búng tay của Thanos và cứu lấy vũ trụ.', 181, DATEADD(DAY, -150, CAST(GETDATE() AS DATE)), N'Anthony & Joe Russo', N'Robert Downey Jr., Chris Evans, Scarlett Johansson, Mark Ruffalo', N'phim20.jpg', N'NGUNG_CHIEU', 1);
+    (N'P020', N'Avengers: Hồi Kết (Avengers: Endgame)', N'Trận chiến lịch sử cuối cùng của biệt đội siêu anh hùng Avengers nhằm đảo ngược cú búng tay của Thanos và cứu lấy vũ trụ.', 181, DATEADD(DAY, -150, CAST(GETDATE() AS DATE)), N'Anthony & Joe Russo', N'Robert Downey Jr., Chris Evans, Scarlett Johansson, Mark Ruffalo', N'phim20.jpg', N'NGUNG_CHIEU', 1),
+    (N'P021', N'Thám Tử Kiên: Kỳ Án Không Đầu', N'Chuỗi vụ mất tích bí ẩn tại một ngôi làng cổ khiến Thám tử Kiên phải lần theo từng dấu vết tâm linh và manh mối trinh thám.', 131, DATEADD(DAY, -7, CAST(GETDATE() AS DATE)), N'Victor Vũ', N'Quốc Huy, Đinh Ngọc Diệp, Quốc Anh, Anh Phạm', N'phim01.jpg', N'DANG_CHIEU', 22),
+    (N'P022', N'Thanh Xuân 18x2: Lữ Khách Phương Trời', N'Chàng trai 36 tuổi lần giở quyển nhật ký thanh xuân để tìm lại mối tình đầu tuổi 18 qua chuyến hành trình xuyên Nhật Bản.', 123, DATEADD(DAY, -11, CAST(GETDATE() AS DATE)), N'Fujii Michihito', N'Hứa Quang Hán, Kiyohara Kaya, Trương Hiếu Toàn', N'phim02.jpg', N'DANG_CHIEU', 21),
+    (N'P023', N'Ký Sinh Trùng (Parasite)', N'Gia đình họ Kim nghèo khó từng bước thâm nhập vào cuộc sống của gia tộc giàu có họ Park với những bí mật khôn lường.', 132, DATEADD(DAY, -16, CAST(GETDATE() AS DATE)), N'Bong Joon-ho', N'Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong, Choi Woo-shik', N'phim03.jpg', N'DANG_CHIEU', 23),
+    (N'P024', N'Vùng Đất Kỳ Ảo (Wicked)', N'Câu chuyện trước khi Dorothy đặt chân đến xứ Oz xoay quanh tình bạn đặc biệt giữa hai phù thủy trẻ Elphaba và Glinda.', 160, DATEADD(DAY, 18, CAST(GETDATE() AS DATE)), N'Jon M. Chu', N'Cynthia Erivo, Ariana Grande, Jonathan Bailey, Michelle Yeoh', N'phim04.jpg', N'SAP_CHIEU', 24),
+    (N'P025', N'Người Nhện: Du Hành Vũ Trụ Nhện', N'Miles Morales dấn thân vào đa vũ trụ Người Nhện để bảo vệ thực tại khỏi hiểm họa mới đe dọa toàn bộ dòng thời gian.', 140, DATEADD(DAY, -95, CAST(GETDATE() AS DATE)), N'Joaquim Dos Santos', N'Shameik Moore, Hailee Steinfeld, Oscar Isaac', N'phim05.jpg', N'NGUNG_CHIEU', 25);
 GO
 
 INSERT INTO PhongChieu (MaPhong, TenPhong, SoHang, SoCot) VALUES
@@ -178,12 +188,17 @@ INSERT INTO PhongChieu (MaPhong, TenPhong, SoHang, SoCot) VALUES
     (N'P17', N'Phòng 17', 6, 8),
     (N'P18', N'Phòng 18', 6, 8),
     (N'P19', N'Phòng 19', 6, 8),
-    (N'P20', N'Phòng 20', 6, 8);
+    (N'P20', N'Phòng 20', 6, 8),
+    (N'P21', N'Phòng 21', 6, 8),
+    (N'P22', N'Phòng 22', 6, 8),
+    (N'P23', N'Phòng 23', 6, 8),
+    (N'P24', N'Phòng 24', 6, 8),
+    (N'P25', N'Phòng 25', 6, 8);
 GO
 
 DECLARE @p INT, @h INT, @c INT;
 SET @p = 1;
-WHILE @p <= 20
+WHILE @p <= 25
 BEGIN
     SET @h = 0;
     WHILE @h < 6
@@ -203,12 +218,12 @@ GO
 
 INSERT INTO NguoiDung (TenDangNhap, MatKhau, HoTen, Email, SoDienThoai, VaiTro, HoatDong) VALUES
     (N'admin', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Quản Trị Hệ Thống', N'admin@email.com', N'0901000001', N'QUAN_TRI', 1),
-    (N'nhanvien1', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Trần Minh Khoa', N'nhanvien1@email.com', N'0901000002', N'NHAN_VIEN', 1),
-    (N'nhanvien2', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Lê Thị Hồng Nhung', N'nhanvien2@email.com', N'0901000003', N'NHAN_VIEN', 1),
+    (N'nhanvien1', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Phạm Trung Kiên', N'nhanvien1@email.com', N'0901000002', N'NHAN_VIEN', 1),
+    (N'nhanvien2', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Phạm Trần Ngọc Nhân', N'nhanvien2@email.com', N'0901000003', N'NHAN_VIEN', 1),
     (N'nhanvien3', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Phạm Quốc Đạt', N'nhanvien3@email.com', N'0901000004', N'NHAN_VIEN', 1),
-    (N'khach01', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nguyễn Văn An', N'khach01@email.com', N'0901000005', N'KHACH_HANG', 1),
-    (N'khach02', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Trần Thị Bích', N'khach02@email.com', N'0901000006', N'KHACH_HANG', 1),
-    (N'khach03', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Lê Hoàng Cường', N'khach03@email.com', N'0901000007', N'KHACH_HANG', 1),
+    (N'khach01', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nguyễn Trọng Nhân', N'khach01@email.com', N'0901000005', N'KHACH_HANG', 1),
+    (N'khach02', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Lê Huy Quốc Bảo', N'khach02@email.com', N'0901000006', N'KHACH_HANG', 1),
+    (N'khach03', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nguyễn Thanh Huyền', N'khach03@email.com', N'0901000007', N'KHACH_HANG', 1),
     (N'khach04', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Phạm Thu Dung', N'khach04@email.com', N'0901000008', N'KHACH_HANG', 1),
     (N'khach05', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Hoàng Minh Đức', N'khach05@email.com', N'0901000009', N'KHACH_HANG', 1),
     (N'khach06', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Vũ Thị Giang', N'khach06@email.com', N'0901000010', N'KHACH_HANG', 1),
@@ -221,7 +236,12 @@ INSERT INTO NguoiDung (TenDangNhap, MatKhau, HoTen, Email, SoDienThoai, VaiTro, 
     (N'khach13', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Phan Anh Minh', N'khach13@email.com', N'0901000017', N'KHACH_HANG', 1),
     (N'khach14', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Võ Thị Ngọc', N'khach14@email.com', N'0901000018', N'KHACH_HANG', 1),
     (N'khach15', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Huỳnh Tấn Phát', N'khach15@email.com', N'0901000019', N'KHACH_HANG', 1),
-    (N'khach16', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Mai Thanh Trúc', N'khach16@email.com', N'0901000020', N'KHACH_HANG', 1);
+    (N'khach16', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Mai Thanh Trúc', N'khach16@email.com', N'0901000020', N'KHACH_HANG', 1),
+    (N'khach17', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Tạ Minh Quân', N'khach17@email.com', N'0901000021', N'KHACH_HANG', 1),
+    (N'khach18', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Trịnh Phương Thảo', N'khach18@email.com', N'0901000022', N'KHACH_HANG', 1),
+    (N'khach19', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Lưu Gia Bảo', N'khach19@email.com', N'0901000023', N'KHACH_HANG', 1),
+    (N'khach20', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Kiều Hải Yến', N'khach20@email.com', N'0901000024', N'KHACH_HANG', 1),
+    (N'khach21', N'8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Châu Thành Đạt', N'khach21@email.com', N'0901000025', N'KHACH_HANG', 1);
 GO
 
 DECLARE @s INT, @gio INT, @bd DATETIME2, @phim INT, @tl INT, @gt DECIMAL(12,0);
@@ -238,39 +258,51 @@ BEGIN
     VALUES (@phim, ((@s - 1) % 20) + 1, @bd, DATEADD(MINUTE, @tl, @bd), @gt, @gt + 20000, N'MO_BAN');
     SET @s = @s + 1;
 END
+WHILE @s <= 45
+BEGIN
+    SET @gio = 9 + ((@s - 1) % 5) * 3;
+    SET @bd = DATEADD(HOUR, @gio, CAST(CAST(DATEADD(DAY, ((@s - 1) / 5) + 1, GETDATE()) AS DATE) AS DATETIME2));
+    SET @phim = 21 + ((@s - 41) % 3);
+    SELECT @tl = ThoiLuong FROM Phim WHERE Id = @phim;
+    SET @gt = CASE WHEN @gio >= 18 THEN 90000 ELSE 75000 END;
+    INSERT INTO SuatChieu (PhimId, PhongChieuId, GioBatDau, GioKetThuc, GiaThuong, GiaVip, TrangThai)
+    VALUES (@phim, @s - 20, @bd, DATEADD(MINUTE, @tl, @bd), @gt, @gt + 20000, N'MO_BAN');
+    SET @s = @s + 1;
+END
 GO
 
-DECLARE @i INT, @gia DECIMAL(12,0), @g1 INT, @tt NVARCHAR(20), @kenh NVARCHAR(10), @uid BIGINT, @ttVe NVARCHAR(20);
+DECLARE @i INT, @gia DECIMAL(12,0), @g1 INT, @tt NVARCHAR(20), @kenh NVARCHAR(10), @uid BIGINT, @ttVe NVARCHAR(20), @scId INT;
 DECLARE @ngay DATETIME2, @han DATETIME2, @ten NVARCHAR(100), @sdt NVARCHAR(15);
 SET @i = 1;
-WHILE @i <= 20
+WHILE @i <= 25
 BEGIN
+    SET @scId = CASE WHEN @i <= 20 THEN @i ELSE @i + 20 END;
     IF @i % 5 = 0
     BEGIN
-        SELECT @gia = GiaVip FROM SuatChieu WHERE Id = @i;
+        SELECT @gia = GiaVip FROM SuatChieu WHERE Id = @scId;
         SET @g1 = (@i - 1) * 48 + 32 + (@i / 5);
     END
     ELSE
     BEGIN
-        SELECT @gia = GiaThuong FROM SuatChieu WHERE Id = @i;
-        SET @g1 = (@i - 1) * 48 + @i;
+        SELECT @gia = GiaThuong FROM SuatChieu WHERE Id = @scId;
+        SET @g1 = CASE WHEN @i <= 20 THEN (@i - 1) * 48 + @i ELSE (@i - 1) * 48 + (@i - 20) END;
     END
     SET @tt = CASE WHEN @i IN (9, 18) THEN N'DA_HUY' WHEN @i = 13 THEN N'HET_HAN' WHEN @i = 7 THEN N'CHO_THANH_TOAN' ELSE N'DA_THANH_TOAN' END;
     SET @ttVe = CASE WHEN @i IN (9, 13, 18) THEN N'DA_HUY' ELSE N'HOP_LE' END;
-    SET @kenh = CASE WHEN @i <= 16 THEN N'WEB' ELSE N'QUAY' END;
-    SET @uid = CASE WHEN @i <= 16 THEN 4 + @i ELSE 2 + (@i % 3) END;
+    SET @kenh = CASE WHEN (@i <= 16 OR @i BETWEEN 21 AND 24) THEN N'WEB' ELSE N'QUAY' END;
+    SET @uid = CASE WHEN @i <= 16 THEN 4 + @i WHEN @i <= 20 THEN 2 + (@i % 3) WHEN @i <= 24 THEN @i ELSE 2 END;
     SET @ngay = DATEADD(DAY, -(@i % 7), SYSDATETIME());
     SET @han = CASE WHEN @i IN (7, 13) THEN DATEADD(MINUTE, 5, @ngay) ELSE NULL END;
-    SET @ten = CASE WHEN @i > 16 THEN N'Khách lẻ ' + CAST(@i AS NVARCHAR(10)) ELSE NULL END;
-    SET @sdt = CASE WHEN @i > 16 THEN N'09020000' + RIGHT(N'00' + CAST(@i AS NVARCHAR(10)), 2) ELSE NULL END;
+    SET @ten = CASE WHEN (@i BETWEEN 17 AND 20 OR @i = 25) THEN N'Khách lẻ ' + CAST(@i AS NVARCHAR(10)) ELSE NULL END;
+    SET @sdt = CASE WHEN (@i BETWEEN 17 AND 20 OR @i = 25) THEN N'09020000' + RIGHT(N'00' + CAST(@i AS NVARCHAR(10)), 2) ELSE NULL END;
 
     INSERT INTO DonDat (MaDon, NguoiDungId, HoTenKhach, SdtKhach, NgayDat, HanThanhToan, TongTien, TrangThai, KenhDat)
     VALUES (N'DD' + RIGHT(N'0000' + CAST(@i AS NVARCHAR(10)), 4), @uid, @ten, @sdt,
             @ngay, @han, @gia * 2, @tt, @kenh);
 
     INSERT INTO Ve (MaVe, DonDatId, SuatChieuId, GheId, GiaVe, TrangThai) VALUES
-        (N'VE' + RIGHT(N'000000' + CAST(2 * @i - 1 AS NVARCHAR(10)), 6), @i, @i, @g1,     @gia, @ttVe),
-        (N'VE' + RIGHT(N'000000' + CAST(2 * @i AS NVARCHAR(10)), 6),     @i, @i, @g1 + 1, @gia, @ttVe);
+        (N'VE' + RIGHT(N'000000' + CAST(2 * @i - 1 AS NVARCHAR(10)), 6), @i, @scId, @g1,     @gia, @ttVe),
+        (N'VE' + RIGHT(N'000000' + CAST(2 * @i AS NVARCHAR(10)), 6),     @i, @scId, @g1 + 1, @gia, @ttVe);
 
     SET @i = @i + 1;
 END

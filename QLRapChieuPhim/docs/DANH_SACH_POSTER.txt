@@ -1,27 +1,52 @@
-DANH SÁCH POSTER - tên file cần đặt cho từng phim
-Thư mục: src/main/resources/static/images/posters/   (ảnh dọc, tỉ lệ 2:3, khoảng 300x450 trở lên, đuôi .jpg)
-Cách thay ảnh thật: tải poster của phim, đổi tên đúng như cột 'Tên file', chép đè vào thư mục trên, Build > Rebuild Project rồi Ctrl+F5.
-Hoặc dùng đường dẫn mạng: trong SQL, thay N'phim01.jpg' bằng N'https://.../poster.jpg' (web đã hỗ trợ cả hai cách).
+DANH SACH ANH POSTER & TAI NGUYEN HINH ANH TRONG HE THONG
+=========================================================
 
-Tên file     Mã     Trạng thái   Tên phim
---------------------------------------------------------------------------------
-phim01.jpg   P001   DANG_CHIEU   Mai
-phim02.jpg   P002   DANG_CHIEU   Lật Mặt 7: Một Điều Ước
-phim03.jpg   P003   DANG_CHIEU   Đào, Phở và Piano
-phim04.jpg   P004   DANG_CHIEU   Quỷ Cẩu
-phim05.jpg   P005   DANG_CHIEU   Những Mảnh Ghép Cảm Xúc 2 (Inside Out 2)
-phim06.jpg   P006   DANG_CHIEU   Hành Tinh Cát: Phần Hai (Dune: Part Two)
-phim07.jpg   P007   DANG_CHIEU   Deadpool & Wolverine
-phim08.jpg   P008   DANG_CHIEU   Đất Rừng Phương Nam
-phim09.jpg   P009   DANG_CHIEU   Godzilla x Kong: Đế Chế Mới
-phim10.jpg   P010   DANG_CHIEU   Mắt Biếc
-phim11.jpg   P011   DANG_CHIEU   Kung Fu Panda 4
-phim12.jpg   P012   DANG_CHIEU   Kẻ Ăn Hồn
-phim13.jpg   P013   DANG_CHIEU   Kẻ Trộm Mặt Trăng 4 (Despicable Me 4)
-phim14.jpg   P014   DANG_CHIEU   Avatar: Dòng Chảy Của Nước
-phim15.jpg   P015   SAP_CHIEU    Cám
-phim16.jpg   P016   SAP_CHIEU    Nhà Bà Nữ
-phim17.jpg   P017   SAP_CHIEU    Oppenheimer
-phim18.jpg   P018   SAP_CHIEU    Hành Trình Của Moana 2 (Moana 2)
-phim19.jpg   P019   NGUNG_CHIEU  Bố Già
-phim20.jpg   P020   NGUNG_CHIEU  Avengers: Hồi Kết (Avengers: Endgame)
+1. Thu muc chua anh tinh tich hop san trong du an:
+   QLRapChieuPhim/src/main/resources/static/images/
+   - no-poster.svg             (Anh du phong mac dinh khi phim khong co poster hoac anh loi)
+   - posters/default-poster.jpg
+   - posters/hero-banner.jpg   (Anh nen banner trang chu)
+   - posters/phim01.jpg .. phim20.jpg  (20 anh poster phim mau di kem)
+
+2. Thu muc chua anh upload thuc te khi chay ung dung:
+   QLRapChieuPhim/uploads/posters/
+   (WebConfig anh xa URL /images/posters/** uu tien doc file:uploads/posters/
+    truoc khi tim trong classpath:/static/images/posters/.)
+
+3. Bang anh xa 25 phim mau trong QLRapChieuPhim/sql/QuanLyPhimVaDatVe.sql:
+
+   MaPhim | TenPhim                                         | TrangThai   | Poster
+   -------+-------------------------------------------------+-------------+-----------
+   P001   | Mai                                             | DANG_CHIEU  | phim01.jpg
+   P002   | Lật Mặt 7: Một Điều Ước                         | DANG_CHIEU  | phim02.jpg
+   P003   | Đào, Phở và Piano                               | DANG_CHIEU  | phim03.jpg
+   P004   | Quỷ Cẩu                                         | DANG_CHIEU  | phim04.jpg
+   P005   | Những Mảnh Ghép Cảm Xúc 2 (Inside Out 2)        | DANG_CHIEU  | phim05.jpg
+   P006   | Hành Tinh Cát: Phần Hai (Dune: Part Two)        | DANG_CHIEU  | phim06.jpg
+   P007   | Deadpool & Wolverine                            | DANG_CHIEU  | phim07.jpg
+   P008   | Đất Rừng Phương Nam                             | DANG_CHIEU  | phim08.jpg
+   P009   | Godzilla x Kong: Đế Chế Mới                     | DANG_CHIEU  | phim09.jpg
+   P010   | Mắt Biếc                                        | DANG_CHIEU  | phim10.jpg
+   P011   | Kung Fu Panda 4                                 | DANG_CHIEU  | phim11.jpg
+   P012   | Kẻ Ăn Hồn                                       | DANG_CHIEU  | phim12.jpg
+   P013   | Kẻ Trộm Mặt Trăng 4 (Despicable Me 4)           | DANG_CHIEU  | phim13.jpg
+   P014   | Avatar: Dòng Chảy Của Nước                      | DANG_CHIEU  | phim14.jpg
+   P015   | Cám                                             | SAP_CHIEU   | phim15.jpg
+   P016   | Nhà Bà Nữ                                       | SAP_CHIEU   | phim16.jpg
+   P017   | Oppenheimer                                     | SAP_CHIEU   | phim17.jpg
+   P018   | Hành Trình Của Moana 2 (Moana 2)                | SAP_CHIEU   | phim18.jpg
+   P019   | Bố Già                                          | NGUNG_CHIEU | phim19.jpg
+   P020   | Avengers: Hồi Kết (Avengers: Endgame)           | NGUNG_CHIEU | phim20.jpg
+   P021   | Thám Tử Kiên: Kỳ Án Không Đầu                   | DANG_CHIEU  | phim01.jpg
+   P022   | Thanh Xuân 18x2: Lữ Khách Phương Trời           | DANG_CHIEU  | phim02.jpg
+   P023   | Ký Sinh Trùng (Parasite)                        | DANG_CHIEU  | phim03.jpg
+   P024   | Vùng Đất Kỳ Ảo (Wicked)                         | SAP_CHIEU   | phim04.jpg
+   P025   | Người Nhện: Du Hành Vũ Trụ Nhện                 | NGUNG_CHIEU | phim05.jpg
+
+4. Ghi chu hien thi & upload:
+   - Truong Poster trong bang Phim co the luu:
+     + Ten tep anh cuc bo (vi du: phim01.jpg hoac ten anh upload UUID.jpg) -> /images/posters/<Poster>
+     + Hoac duong dan bat dau bang http://, https:// hoac / -> hien thi truc tiep.
+     + Hoac bo trong -> tu dong hien thi /images/no-poster.svg.
+   - Khi quan tri vien upload anh moi trong trang /admin/phim/them hoac /admin/phim/sua/{id},
+     he thong xem truoc (preview) ngay tren trinh duyet va luu tep vao QLRapChieuPhim/uploads/posters/.

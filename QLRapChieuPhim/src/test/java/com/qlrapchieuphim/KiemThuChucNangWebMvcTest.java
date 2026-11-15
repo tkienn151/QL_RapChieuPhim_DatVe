@@ -407,4 +407,88 @@ public class KiemThuChucNangWebMvcTest {
         assertEquals(TrangThaiDon.HET_HAN, donDatRepository.findById(donQuaHanQuaLichSu.getId()).orElseThrow().getTrangThai());
         assertFalse(veRepository.findGheDaDat(suat.getId()).contains(gheA3.getId()));
     }
+
+    @Test
+    @DisplayName("Kiểm thử tìm kiếm/sắp xếp suất chiếu, tra cứu, lịch sử và báo lỗi theo từng trường nhập")
+    void kiemThuTimKiemSapXepVaBaoLoiTruong() throws Exception {
+        Ghe gheA2 = new Ghe();
+        gheA2.setPhongChieu(phong);
+        gheA2.setHang("A");
+        gheA2.setSoGhe(2);
+        gheA2.setLoaiGhe(LoaiGhe.THUONG);
+        gheA2 = gheRepository.save(gheA2);
+
+        DonDat donWeb = datVeService.giuGhe(suat.getId(), Collections.singletonList(gheA1.getId()), khach.getId());
+        datVeService.thanhToan(donWeb.getMaDon());
+        DonDat donQuay = banVeService.banVeTaiQuay(
+                suat.getId(), Collections.singletonList(gheA2.getId()), nhanVien.getId(), "Trần Thị B", "0912345678");
+
+        MockHttpSession sessionAdmin = taoSession(admin);
+        MockHttpSession sessionNV = taoSession(nhanVien);
+        MockHttpSession sessionKhach = taoSession(khach);
+
+        mockMvc.perform(get("/admin/suat")
+                        .param("tuKhoa", "Mai")
+                        .param("sapXep", "giaThuong")
+                        .param("tang", "true")
+                        .session(sessionAdmin))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Mai")))
+                .andExpect(content().string(containsString("Phòng chiếu 01")));
+
+        mockMvc.perform(get("/admin/suat")
+                        .param("tuKhoa", "KhongTonTaiXYZ")
+                        .session(sessionAdmin))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Không tìm thấy suất chiếu nào phù hợp")));
+
+        mockMvc.perform(get("/tra-cuu")
+                        .param("tuKhoa", "Trần Thị B")
+                        .param("sapXep", "tongTien")
+                        .param("tang", "true")
+                        .session(sessionNV))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(donQuay.getMaDon())));
+
+        mockMvc.perform(get("/lich-su")
+                        .param("tuKhoa", "Mai")
+                        .param("sapXep", "maDon")
+                        .param("tang", "false")
+                        .session(sessionKhach))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(donWeb.getMaDon())));
+
+        mockMvc.perform(get("/lich-su")
+                        .param("tuKhoa", "KhongTonTaiXYZ")
+                        .session(sessionKhach))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Không tìm thấy đơn đặt vé phù hợp")));
+
+        mockMvc.perform(post("/admin/phim/them")
+                        .param("maPhim", "P999")
+                        .param("tenPhim", "Phim Thiếu Thể Loại")
+                        .param("thoiLuong", "90")
+                        .session(sessionAdmin))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Vui lòng chọn thể loại.")));
+
+        mockMvc.perform(post("/admin/suat/them")
+                        .param("giaThuong", "75000")
+                        .param("giaVip", "95000")
+                        .param("gioBatDau", LocalDateTime.now().plusDays(2).withHour(10).withMinute(0).toString())
+                        .session(sessionAdmin))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Vui lòng chọn phim.")));
+
+        mockMvc.perform(post("/admin/taikhoan/them")
+                        .param("tenDangNhap", "a")
+                        .param("matKhau", "123")
+                        .param("hoTen", "")
+                        .param("vaiTro", "KHACH_HANG")
+                        .session(sessionAdmin))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Vui lòng kiểm tra lại các ô báo lỗi.")))
+                .andExpect(content().string(containsString("Trang này chỉ tạo tài khoản nhân viên hoặc quản trị.")))
+                .andExpect(content().string(containsString("Họ tên không được để trống.")));
+    }
 }

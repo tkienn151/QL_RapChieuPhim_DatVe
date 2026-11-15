@@ -8,13 +8,16 @@ import com.qlrapchieuphim.entity.enums.KenhDat;
 import com.qlrapchieuphim.entity.enums.TrangThaiDon;
 import com.qlrapchieuphim.entity.enums.TrangThaiVe;
 import com.qlrapchieuphim.repository.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -99,5 +102,46 @@ public class BanVeService {
         }
         donDat.setTongTien(donDat.tinhTongTien());
         return donDatRepo.saveAndFlush(donDat);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SuatChieu> layDanhSachSuatMoBanTaiQuay() {
+        List<SuatChieu> dsSuat = new ArrayList<>(suatChieuRepo.findAll(Sort.by(Sort.Direction.ASC, "gioBatDau")));
+        LocalDateTime bayGio = LocalDateTime.now();
+        dsSuat.removeIf(s -> !s.conMoBan() || !s.getGioKetThuc().isAfter(bayGio));
+        for (SuatChieu s : dsSuat) {
+            if (s.getPhim() != null) s.getPhim().getTenPhim();
+            if (s.getPhongChieu() != null) s.getPhongChieu().getTenPhong();
+        }
+        return dsSuat;
+    }
+
+    @Transactional
+    public Optional<SuatChieu> chuanBiBanVeChoSuat(Long suatId) {
+        if (suatId == null) {
+            return Optional.empty();
+        }
+        LocalDateTime bayGio = LocalDateTime.now();
+        Optional<SuatChieu> opt = suatChieuRepo.findByIdWithDetails(suatId)
+                .or(() -> suatChieuRepo.findById(suatId))
+                .filter(s -> s.conMoBan() && s.getGioKetThuc().isAfter(bayGio));
+        opt.ifPresent(s -> datVeService.donGheQuaHanTheoSuat(suatId));
+        return opt;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Ghe> layDanhSachGheTheoPhong(Long phongChieuId) {
+        return datVeService.layDanhSachGheTheoPhong(phongChieuId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> layDanhSachGheDaDat(Long suatId) {
+        return datVeService.layDanhSachGheDaDat(suatId);
+    }
+
+    @Transactional(readOnly = true)
+    public DonDat layDonTheoMa(String maDon) {
+        return donDatRepo.findByMaDon(maDon)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn đặt vé"));
     }
 }

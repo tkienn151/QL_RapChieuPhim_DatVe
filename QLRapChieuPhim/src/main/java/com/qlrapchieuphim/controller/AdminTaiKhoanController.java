@@ -1,16 +1,12 @@
 package com.qlrapchieuphim.controller;
 
-import com.qlrapchieuphim.config.PasswordUtil;
 import com.qlrapchieuphim.config.PhienDangNhap;
 import com.qlrapchieuphim.entity.NguoiDung;
 import com.qlrapchieuphim.entity.enums.VaiTro;
-import com.qlrapchieuphim.repository.DonDatRepository;
-import com.qlrapchieuphim.repository.NguoiDungRepository;
+import com.qlrapchieuphim.service.LoiTruongException;
 import com.qlrapchieuphim.service.NguoiDungService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +19,10 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/admin/taikhoan")
 public class AdminTaiKhoanController {
 
-    private final NguoiDungRepository nguoiDungRepository;
-    private final DonDatRepository donDatRepository;
+    private final NguoiDungService nguoiDungService;
 
-    public AdminTaiKhoanController(NguoiDungRepository nguoiDungRepository,
-                                   DonDatRepository donDatRepository) {
-        this.nguoiDungRepository = nguoiDungRepository;
-        this.donDatRepository = donDatRepository;
+    public AdminTaiKhoanController(NguoiDungService nguoiDungService) {
+        this.nguoiDungService = nguoiDungService;
     }
 
     @GetMapping
@@ -40,14 +33,8 @@ public class AdminTaiKhoanController {
                                    @RequestParam(defaultValue = "0") int trang,
                                    Model model) {
         String tk = (tuKhoa == null || tuKhoa.isBlank()) ? null : tuKhoa.trim();
-        String cot = "tenDangNhap".equals(sapXep) ? "tenDangNhap" : ("hoTen".equals(sapXep) ? "hoTen" : "id");
-        Sort.Direction huong = tang ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = "id".equals(cot)
-                ? Sort.by(huong, cot)
-                : Sort.by(huong, cot).and(Sort.by(Sort.Direction.ASC, "id"));
-
-        Page<NguoiDung> dsTaiKhoan = nguoiDungRepository.timKiemTaiKhoan(
-                tk, vaiTro, PageRequest.of(Math.max(trang, 0), 10, sort));
+        String cot = NguoiDungService.chuanHoaCotSapXep(sapXep);
+        Page<NguoiDung> dsTaiKhoan = nguoiDungService.timKiemTaiKhoan(tk, vaiTro, cot, tang, trang, 10);
 
         model.addAttribute("dsTaiKhoan", dsTaiKhoan);
         model.addAttribute("tuKhoa", tk);
@@ -76,45 +63,17 @@ public class AdminTaiKhoanController {
         String ten = tenDangNhap == null ? "" : tenDangNhap.trim();
         String em = (email == null || email.isBlank()) ? null : email.trim();
         String sdt = (soDienThoai == null || soDienThoai.isBlank()) ? null : soDienThoai.trim();
-        java.util.Map<String, String> loiTruong = new java.util.LinkedHashMap<>();
-        if (!NguoiDungService.tenDangNhapHopLe(ten)) loiTruong.put("tenDangNhap", "Tên đăng nhập gồm 3-50 ký tự, chỉ gồm chữ không dấu, số, dấu gạch dưới (_) và dấu chấm (.).");
-        else if (nguoiDungRepository.existsByTenDangNhap(ten)) loiTruong.put("tenDangNhap", "Tên đăng nhập đã tồn tại!");
-        if (matKhau == null || matKhau.length() < 6) loiTruong.put("matKhau", "Mật khẩu phải có ít nhất 6 ký tự.");
-        else if (matKhau.length() > 50) loiTruong.put("matKhau", "Mật khẩu tối đa 50 ký tự.");
-        if (hoTen == null || hoTen.isBlank()) loiTruong.put("hoTen", "Họ tên không được để trống.");
-        else if (hoTen.trim().length() > 100) loiTruong.put("hoTen", "Họ tên tối đa 100 ký tự.");
-        if (em != null) {
-            if (em.length() > 100) loiTruong.put("email", "Email tối đa 100 ký tự.");
-            else if (!NguoiDungService.emailHopLe(em)) loiTruong.put("email", "Email không đúng định dạng.");
-        }
-        if (sdt != null && !NguoiDungService.soDienThoaiHopLe(sdt)) loiTruong.put("soDienThoai", "Số điện thoại không đúng định dạng (10 số, bắt đầu bằng 0 hoặc +84).");
-        if (vaiTro == VaiTro.KHACH_HANG) loiTruong.put("vaiTro", "Trang này chỉ tạo tài khoản nhân viên hoặc quản trị.");
-
-        if (!loiTruong.isEmpty()) {
-            return traVeFormThemLoi(model, ten, hoTen, em, sdt, vaiTro, loiTruong);
-        }
-
-        NguoiDung nd = new NguoiDung();
-        nd.setTenDangNhap(ten);
-        nd.setMatKhau(PasswordUtil.bam(matKhau));
-        nd.setHoTen(hoTen.trim());
-        nd.setEmail(em);
-        nd.setSoDienThoai(sdt);
-        nd.setVaiTro(vaiTro);
-        nd.setHoatDong(true);
         try {
-            nguoiDungRepository.save(nd);
-        } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            loiTruong.put("tenDangNhap", "Tên đăng nhập đã tồn tại!");
-            return traVeFormThemLoi(model, ten, hoTen, em, sdt, vaiTro, loiTruong);
+            NguoiDung nd = nguoiDungService.themTaiKhoanNoiBo(ten, matKhau, hoTen, em, sdt, vaiTro);
+            ra.addFlashAttribute("thanhCong", "Thêm tài khoản '" + nd.getTenDangNhap() + "' thành công!");
+            return "redirect:/admin/taikhoan";
+        } catch (LoiTruongException e) {
+            return traVeFormThemLoi(model, ten, hoTen, em, sdt, vaiTro, e);
         }
-
-        ra.addFlashAttribute("thanhCong", "Thêm tài khoản '" + ten + "' thành công!");
-        return "redirect:/admin/taikhoan";
     }
 
     private String traVeFormThemLoi(Model model, String ten, String hoTen, String em, String sdt,
-                                    VaiTro vaiTro, java.util.Map<String, String> loiTruong) {
+                                    VaiTro vaiTro, LoiTruongException e) {
         NguoiDung nd = new NguoiDung();
         nd.setTenDangNhap(ten);
         nd.setHoTen(hoTen);
@@ -122,23 +81,20 @@ public class AdminTaiKhoanController {
         nd.setSoDienThoai(sdt);
         nd.setVaiTro(vaiTro);
         model.addAttribute("nguoiDung", nd);
-        model.addAttribute("loiTruong", loiTruong);
-        model.addAttribute("loi", "Vui lòng kiểm tra lại các ô báo lỗi.");
+        LoiTruongException.dayVaoModel(e, model);
         return "admin/taikhoan-form";
     }
 
     @PostMapping("/khoa/{id}")
     public String khoaMoTaiKhoan(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         NguoiDung dangNhap = PhienDangNhap.layNguoiDung(session);
-        if (dangNhap != null && dangNhap.getId().equals(id)) {
-            ra.addFlashAttribute("loi", "Không thể tự khóa tài khoản đang đăng nhập.");
-            return "redirect:/admin/taikhoan";
+        try {
+            nguoiDungService.khoaMoTaiKhoan(id, dangNhap != null ? dangNhap.getId() : null)
+                    .ifPresent(hoatDong -> ra.addFlashAttribute("thanhCong",
+                            hoatDong ? "Đã mở khóa tài khoản!" : "Đã khóa tài khoản!"));
+        } catch (IllegalStateException e) {
+            ra.addFlashAttribute("loi", e.getMessage());
         }
-        nguoiDungRepository.findById(id).ifPresent(nd -> {
-            nd.setHoatDong(!nd.isHoatDong());
-            nguoiDungRepository.save(nd);
-            ra.addFlashAttribute("thanhCong", nd.isHoatDong() ? "Đã mở khóa tài khoản!" : "Đã khóa tài khoản!");
-        });
         return "redirect:/admin/taikhoan";
     }
 
@@ -148,33 +104,26 @@ public class AdminTaiKhoanController {
                             HttpSession session,
                             RedirectAttributes ra) {
         NguoiDung dangNhap = PhienDangNhap.layNguoiDung(session);
-        if (dangNhap != null && dangNhap.getId().equals(id) && vaiTro != VaiTro.QUAN_TRI) {
-            ra.addFlashAttribute("loi", "Không thể tự hạ quyền của tài khoản quản trị đang đăng nhập.");
-            return "redirect:/admin/taikhoan";
+        try {
+            nguoiDungService.doiVaiTro(id, vaiTro, dangNhap != null ? dangNhap.getId() : null)
+                    .ifPresent(nd -> ra.addFlashAttribute("thanhCong",
+                            "Đã cập nhật vai trò tài khoản '" + nd.getTenDangNhap() + "' sang " + vaiTro));
+        } catch (IllegalStateException e) {
+            ra.addFlashAttribute("loi", e.getMessage());
         }
-        nguoiDungRepository.findById(id).ifPresent(nd -> {
-            nd.setVaiTro(vaiTro);
-            nguoiDungRepository.save(nd);
-            ra.addFlashAttribute("thanhCong", "Đã cập nhật vai trò tài khoản '" + nd.getTenDangNhap() + "' sang " + vaiTro);
-        });
         return "redirect:/admin/taikhoan";
     }
 
     @PostMapping("/xoa/{id}")
     public String xoaTaiKhoan(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         NguoiDung dangNhap = PhienDangNhap.layNguoiDung(session);
-        if (dangNhap != null && dangNhap.getId().equals(id)) {
-            ra.addFlashAttribute("loi", "Không thể tự xóa tài khoản đang đăng nhập.");
-            return "redirect:/admin/taikhoan";
+        try {
+            nguoiDungService.xoaTaiKhoan(id, dangNhap != null ? dangNhap.getId() : null)
+                    .ifPresent(ten -> ra.addFlashAttribute("thanhCong",
+                            "Đã xóa tài khoản '" + ten + "' thành công."));
+        } catch (IllegalStateException e) {
+            ra.addFlashAttribute("loi", e.getMessage());
         }
-        if (donDatRepository.existsByNguoiDungId(id)) {
-            ra.addFlashAttribute("loi", "Không thể xóa tài khoản đã phát sinh đơn đặt vé. Hãy sử dụng chức năng Khóa tài khoản.");
-            return "redirect:/admin/taikhoan";
-        }
-        nguoiDungRepository.findById(id).ifPresent(nd -> {
-            nguoiDungRepository.delete(nd);
-            ra.addFlashAttribute("thanhCong", "Đã xóa tài khoản '" + nd.getTenDangNhap() + "' thành công.");
-        });
         return "redirect:/admin/taikhoan";
     }
 

@@ -2,8 +2,7 @@ package com.qlrapchieuphim.controller;
 
 import com.qlrapchieuphim.entity.SuatChieu;
 import com.qlrapchieuphim.entity.enums.TrangThaiSuat;
-import com.qlrapchieuphim.repository.PhimRepository;
-import com.qlrapchieuphim.repository.PhongChieuRepository;
+import com.qlrapchieuphim.service.LoiTruongException;
 import com.qlrapchieuphim.service.SuatChieuService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -26,15 +27,9 @@ import java.time.LocalDateTime;
 public class AdminSuatController {
 
     private final SuatChieuService suatChieuService;
-    private final PhimRepository phimRepo;
-    private final PhongChieuRepository phongChieuRepo;
 
-    public AdminSuatController(SuatChieuService suatChieuService,
-                               PhimRepository phimRepo,
-                               PhongChieuRepository phongChieuRepo) {
+    public AdminSuatController(SuatChieuService suatChieuService) {
         this.suatChieuService = suatChieuService;
-        this.phimRepo = phimRepo;
-        this.phongChieuRepo = phongChieuRepo;
     }
 
     @InitBinder
@@ -58,7 +53,8 @@ public class AdminSuatController {
     }
 
     @GetMapping({"", "/"})
-    public String danhSach(@RequestParam(required = false) Long phimId,
+    public String danhSach(@RequestParam(required = false) String tuKhoa,
+                           @RequestParam(required = false) Long phimId,
                            @RequestParam(required = false) Long phongId,
                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngay,
                            @RequestParam(required = false) TrangThaiSuat trangThai,
@@ -67,23 +63,26 @@ public class AdminSuatController {
                            @RequestParam(defaultValue = "0") int trang,
                            @RequestParam(defaultValue = "10") int kichThuoc,
                            Model model) {
+        String tk = (tuKhoa == null || tuKhoa.isBlank()) ? null : tuKhoa.trim();
         String cot = "giaThuong".equals(sapXep) ? "giaThuong" : ("giaVip".equals(sapXep) ? "giaVip" : "gioBatDau");
         Sort.Direction huong = tang ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(Math.max(0, trang), kichThuoc, Sort.by(huong, cot));
-        Page<SuatChieu> page = suatChieuService.layDanhSachSuatChieu(phimId, phongId, ngay, trangThai, pageable);
+        Sort sort = Sort.by(huong, cot).and(Sort.by(Sort.Direction.ASC, "id"));
+        Pageable pageable = PageRequest.of(Math.max(0, trang), kichThuoc, sort);
+        Page<SuatChieu> page = suatChieuService.layDanhSachSuatChieu(tk, phimId, phongId, ngay, trangThai, pageable);
 
         model.addAttribute("page", page);
         model.addAttribute("dsSuat", page.getContent());
-        model.addAttribute("dsPhim", phimRepo.findAll(Sort.by("tenPhim")));
-        model.addAttribute("dsPhong", phongChieuRepo.findAll(Sort.by("tenPhong")));
+        model.addAttribute("dsPhim", suatChieuService.layTatCaPhimTheoTen());
+        model.addAttribute("dsPhong", suatChieuService.layTatCaPhongTheoTen());
         model.addAttribute("dsTrangThai", TrangThaiSuat.values());
+        model.addAttribute("tuKhoa", tk);
         model.addAttribute("phimId", phimId);
         model.addAttribute("phongId", phongId);
         model.addAttribute("ngay", ngay);
         model.addAttribute("trangThai", trangThai);
         model.addAttribute("sapXep", cot);
         model.addAttribute("tang", tang);
-        model.addAttribute("duongDan", taoDuongDan(phimId, phongId, ngay, trangThai, cot, tang));
+        model.addAttribute("duongDan", taoDuongDan(tk, phimId, phongId, ngay, trangThai, cot, tang));
 
         return "admin/suat-danh-sach";
     }
@@ -97,10 +96,7 @@ public class AdminSuatController {
         suatChieu.setTrangThai(TrangThaiSuat.MO_BAN);
 
         model.addAttribute("suatChieu", suatChieu);
-        model.addAttribute("dsPhim", phimRepo.findAll(Sort.by("tenPhim")));
-        model.addAttribute("dsPhong", phongChieuRepo.findAll(Sort.by("tenPhong")));
-        model.addAttribute("dsTrangThai", TrangThaiSuat.values());
-        model.addAttribute("laThemMoi", true);
+        napDuLieuForm(model, true, null, null);
 
         return "admin/suat-form";
     }
@@ -116,13 +112,8 @@ public class AdminSuatController {
             ra.addFlashAttribute("thanhCong", "Thêm suất chiếu thành công.");
             return "redirect:/admin/suat";
         } catch (Exception e) {
-            com.qlrapchieuphim.service.LoiTruongException.dayVaoModel(e, model);
-            model.addAttribute("dsPhim", phimRepo.findAll(Sort.by("tenPhim")));
-            model.addAttribute("dsPhong", phongChieuRepo.findAll(Sort.by("tenPhong")));
-            model.addAttribute("dsTrangThai", TrangThaiSuat.values());
-            model.addAttribute("phimId", phimId);
-            model.addAttribute("phongChieuId", phongChieuId);
-            model.addAttribute("laThemMoi", true);
+            LoiTruongException.dayVaoModel(e, model);
+            napDuLieuForm(model, true, phimId, phongChieuId);
             return "admin/suat-form";
         }
     }
@@ -141,12 +132,9 @@ public class AdminSuatController {
         try {
             SuatChieu sc = suatChieuService.layTheoId(id);
             model.addAttribute("suatChieu", sc);
-            model.addAttribute("phimId", sc.getPhim() != null ? sc.getPhim().getId() : null);
-            model.addAttribute("phongChieuId", sc.getPhongChieu() != null ? sc.getPhongChieu().getId() : null);
-            model.addAttribute("dsPhim", phimRepo.findAll(Sort.by("tenPhim")));
-            model.addAttribute("dsPhong", phongChieuRepo.findAll(Sort.by("tenPhong")));
-            model.addAttribute("dsTrangThai", TrangThaiSuat.values());
-            model.addAttribute("laThemMoi", false);
+            napDuLieuForm(model, false,
+                    sc.getPhim() != null ? sc.getPhim().getId() : null,
+                    sc.getPhongChieu() != null ? sc.getPhongChieu().getId() : null);
             return "admin/suat-form";
         } catch (Exception e) {
             ra.addFlashAttribute("loi", e.getMessage());
@@ -169,12 +157,7 @@ public class AdminSuatController {
 
         if (id == null) {
             model.addAttribute("loi", "Thiếu mã suất chiếu cần cập nhật.");
-            model.addAttribute("dsPhim", phimRepo.findAll(Sort.by("tenPhim")));
-            model.addAttribute("dsPhong", phongChieuRepo.findAll(Sort.by("tenPhong")));
-            model.addAttribute("dsTrangThai", TrangThaiSuat.values());
-            model.addAttribute("phimId", phimId);
-            model.addAttribute("phongChieuId", phongChieuId);
-            model.addAttribute("laThemMoi", false);
+            napDuLieuForm(model, false, phimId, phongChieuId);
             return "admin/suat-form";
         }
 
@@ -183,17 +166,21 @@ public class AdminSuatController {
             ra.addFlashAttribute("thanhCong", "Cập nhật suất chiếu thành công.");
             return "redirect:/admin/suat";
         } catch (Exception e) {
-            com.qlrapchieuphim.service.LoiTruongException.dayVaoModel(e, model);
+            LoiTruongException.dayVaoModel(e, model);
             suatChieu.setId(id);
             model.addAttribute("suatChieu", suatChieu);
-            model.addAttribute("dsPhim", phimRepo.findAll(Sort.by("tenPhim")));
-            model.addAttribute("dsPhong", phongChieuRepo.findAll(Sort.by("tenPhong")));
-            model.addAttribute("dsTrangThai", TrangThaiSuat.values());
-            model.addAttribute("phimId", phimId);
-            model.addAttribute("phongChieuId", phongChieuId);
-            model.addAttribute("laThemMoi", false);
+            napDuLieuForm(model, false, phimId, phongChieuId);
             return "admin/suat-form";
         }
+    }
+
+    private void napDuLieuForm(Model model, boolean laThemMoi, Long phimId, Long phongChieuId) {
+        model.addAttribute("dsPhim", suatChieuService.layTatCaPhimTheoTen());
+        model.addAttribute("dsPhong", suatChieuService.layTatCaPhongTheoTen());
+        model.addAttribute("dsTrangThai", TrangThaiSuat.values());
+        model.addAttribute("laThemMoi", laThemMoi);
+        if (phimId != null) model.addAttribute("phimId", phimId);
+        if (phongChieuId != null) model.addAttribute("phongChieuId", phongChieuId);
     }
 
     @PostMapping({"/xoa/{id}", "/xoa"})
@@ -247,8 +234,9 @@ public class AdminSuatController {
         return "redirect:/admin/suat";
     }
 
-    private String taoDuongDan(Long phimId, Long phongId, LocalDate ngay, TrangThaiSuat trangThai, String sapXep, boolean tang) {
+    private String taoDuongDan(String tuKhoa, Long phimId, Long phongId, LocalDate ngay, TrangThaiSuat trangThai, String sapXep, boolean tang) {
         StringBuilder sb = new StringBuilder("/admin/suat?");
+        if (tuKhoa != null) sb.append("tuKhoa=").append(URLEncoder.encode(tuKhoa, StandardCharsets.UTF_8)).append("&");
         if (phimId != null) sb.append("phimId=").append(phimId).append("&");
         if (phongId != null) sb.append("phongId=").append(phongId).append("&");
         if (ngay != null) sb.append("ngay=").append(ngay).append("&");

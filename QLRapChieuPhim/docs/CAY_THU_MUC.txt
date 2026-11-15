@@ -1,151 +1,158 @@
-QLRapChieuPhim/
-├── docs/
-│   ├── CAY_THU_MUC.txt
-│   ├── DANH_SACH_POSTER.txt
-│   ├── HUONG_DAN_CHAY_VA_TEST.md
-│   └── HUONG_DAN_DUNG_CHUNG.md
-├── sql/
-│   └── QuanLyPhimVaDatVe_tao_CSDL.sql
-├── uploads/
-│   └── posters/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── qlrapchieuphim/
-│   │   │           ├── config/
-│   │   │           │   ├── PasswordUtil.java
-│   │   │           │   ├── PhienDangNhap.java
-│   │   │           │   └── WebConfig.java
-│   │   │           ├── controller/
-│   │   │           │   ├── AdminPhimController.java
-│   │   │           │   ├── AdminPhongController.java
-│   │   │           │   ├── AdminSuatController.java
-│   │   │           │   ├── AdminTaiKhoanController.java
-│   │   │           │   ├── AuthController.java
-│   │   │           │   ├── DatVeController.java
-│   │   │           │   ├── GlobalExceptionHandler.java
-│   │   │           │   ├── KiemTraKetNoiController.java
-│   │   │           │   ├── LichSuController.java
-│   │   │           │   ├── PhimController.java
-│   │   │           │   ├── QuayController.java
-│   │   │           │   ├── ThongKeController.java
-│   │   │           │   └── TraCuuVeController.java
-│   │   │           ├── dto/
-│   │   │           │   ├── DoanhThuNgayDto.java
-│   │   │           │   └── DoanhThuPhimDto.java
-│   │   │           ├── entity/
-│   │   │           │   ├── enums/
-│   │   │           │   │   ├── KenhDat.java
-│   │   │           │   │   ├── LoaiGhe.java
-│   │   │           │   │   ├── TrangThaiDon.java
-│   │   │           │   │   ├── TrangThaiPhim.java
-│   │   │           │   │   ├── TrangThaiSuat.java
-│   │   │           │   │   ├── TrangThaiVe.java
-│   │   │           │   │   └── VaiTro.java
-│   │   │           │   ├── DonDat.java
-│   │   │           │   ├── Ghe.java
-│   │   │           │   ├── NguoiDung.java
-│   │   │           │   ├── Phim.java
-│   │   │           │   ├── PhongChieu.java
-│   │   │           │   ├── SuatChieu.java
-│   │   │           │   ├── TheLoai.java
-│   │   │           │   └── Ve.java
-│   │   │           ├── interceptor/
-│   │   │           │   ├── DangNhapInterceptor.java
-│   │   │           │   └── PhanQuyenInterceptor.java
-│   │   │           ├── repository/
-│   │   │           │   ├── DonDatRepository.java
-│   │   │           │   ├── GheRepository.java
-│   │   │           │   ├── NguoiDungRepository.java
-│   │   │           │   ├── PhimRepository.java
-│   │   │           │   ├── PhongChieuRepository.java
-│   │   │           │   ├── SuatChieuRepository.java
-│   │   │           │   ├── TheLoaiRepository.java
-│   │   │           │   └── VeRepository.java
-│   │   │           ├── scheduler/
-│   │   │           │   └── NhaGheScheduler.java
-│   │   │           ├── server/
-│   │   │           │   ├── SoatVeProtocol.java
-│   │   │           │   ├── SoatVeServer.java
-│   │   │           │   └── XuLyClientTask.java
-│   │   │           ├── service/
-│   │   │           │   ├── BanVeService.java
-│   │   │           │   ├── DatVeService.java
-│   │   │           │   ├── LichChieuService.java
-│   │   │           │   ├── LoiTruongException.java
-│   │   │           │   ├── NguoiDungService.java
-│   │   │           │   ├── PhimService.java
-│   │   │           │   ├── PhongChieuService.java
-│   │   │           │   ├── SoatVeService.java
-│   │   │           │   ├── SuatChieuService.java
-│   │   │           │   ├── TheLoaiService.java
-│   │   │           │   ├── ThongKeService.java
-│   │   │           │   └── VeService.java
-│   │   │           └── QlRapChieuPhimApplication.java
-│   │   └── resources/
-│   │       ├── static/
-│   │       │   ├── css/
-│   │       │   │   └── style.css
-│   │       │   ├── images/
-│   │       │   └── js/
-│   │       │       └── main.js
-│   │       ├── templates/
-│   │       │   ├── admin/
-│   │       │   │   ├── phim-danh-sach.html
-│   │       │   │   ├── phim-form.html
-│   │       │   │   ├── phong-danh-sach.html
-│   │       │   │   ├── phong-form.html
-│   │       │   │   ├── suat-danh-sach.html
-│   │       │   │   ├── suat-form.html
-│   │       │   │   ├── taikhoan-danh-sach.html
-│   │       │   │   ├── taikhoan-form.html
-│   │       │   │   ├── theloai-danh-sach.html
-│   │       │   │   ├── theloai-form.html
-│   │       │   │   └── thongke.html
-│   │       │   ├── auth/
-│   │       │   │   ├── dang-ky.html
-│   │       │   │   ├── dang-nhap.html
-│   │       │   │   └── ho-so.html
-│   │       │   ├── datve/
-│   │       │   │   ├── chon-ghe.html
-│   │       │   │   ├── ket-qua.html
-│   │       │   │   └── thanh-toan.html
-│   │       │   ├── fragments/
-│   │   │       │   ├── footer.html
-│   │   │       │   ├── header.html
-│   │   │       │   ├── loi-truong.html
-│   │   │       │   ├── navbar.html
-│   │   │       │   ├── phantrang.html
-│   │   │       │   ├── phieuve.html
-│   │   │       │   └── phim-card.html
-│   │       │   ├── lichsu/
-│   │       │   │   ├── chi-tiet.html
-│   │       │   │   └── danh-sach.html
-│   │       │   ├── phim/
-│   │       │   │   ├── chi-tiet.html
-│   │       │   │   └── danh-sach.html
-│   │       │   ├── quay/
-│   │       │   │   ├── ban-ve.html
-│   │       │   │   └── ket-qua.html
-│   │       │   ├── tracuu/
-│   │       │   │   └── tim-ve.html
-│   │       │   ├── loi.html
-│   │       │   └── trang-chu.html
-│   │       └── application.properties
-│   └── test/
-│       ├── java/com/qlrapchieuphim/
-│       │   ├── KiemThuChucNangWebMvcTest.java
-│       │   ├── KiemThuDongThoiVaMangTest.java
-│       │   └── QlRapChieuPhimApplicationTests.java
-│       └── resources/
-│           └── application-test.properties
+QL_RapChieuPhim&DatVe/
+├── .gitignore
 ├── README.md
-└── pom.xml
-
-QLRapChieuPhimClient/
-├── README.md
-├── pom.xml
-└── src/main/java/com/qlrapchieuphimclient/
-    ├── KiemThuNhieuClient.java
-    └── SoatVeClient.java
+│
+├── QLRapChieuPhim/
+│   ├── README.md
+│   ├── pom.xml
+│   ├── docs/
+│   │   ├── CAY_THU_MUC.txt
+│   │   ├── DANH_SACH_POSTER.txt
+│   │   ├── HUONG_DAN_CHAY_VA_TEST.md
+│   │   └── HUONG_DAN_DUNG_CHUNG.md
+│   ├── sql/
+│   │   └── QuanLyPhimVaDatVe.sql
+│   ├── uploads/                          (tạo tự động khi upload poster; thuộc .gitignore)
+│   │   └── posters/
+│   └── src/
+│       ├── main/
+│       │   ├── java/com/qlrapchieuphim/
+│       │   │   ├── QlRapChieuPhimApplication.java
+│       │   │   ├── config/
+│       │   │   │   ├── PasswordUtil.java
+│       │   │   │   ├── PhienDangNhap.java
+│       │   │   │   └── WebConfig.java
+│       │   │   ├── controller/
+│       │   │   │   ├── AdminPhimController.java
+│       │   │   │   ├── AdminPhongController.java
+│       │   │   │   ├── AdminSuatController.java
+│       │   │   │   ├── AdminTaiKhoanController.java
+│       │   │   │   ├── AuthController.java
+│       │   │   │   ├── DatVeController.java
+│       │   │   │   ├── GlobalExceptionHandler.java
+│       │   │   │   ├── KiemTraKetNoiController.java
+│       │   │   │   ├── LichSuController.java
+│       │   │   │   ├── PhimController.java
+│       │   │   │   ├── QuayController.java
+│       │   │   │   ├── ThongKeController.java
+│       │   │   │   └── TraCuuVeController.java
+│       │   │   ├── dto/
+│       │   │   │   ├── DoanhThuNgayDto.java
+│       │   │   │   └── DoanhThuPhimDto.java
+│       │   │   ├── entity/
+│       │   │   │   ├── DonDat.java
+│       │   │   │   ├── Ghe.java
+│       │   │   │   ├── NguoiDung.java
+│       │   │   │   ├── Phim.java
+│       │   │   │   ├── PhongChieu.java
+│       │   │   │   ├── SuatChieu.java
+│       │   │   │   ├── TheLoai.java
+│       │   │   │   ├── Ve.java
+│       │   │   │   └── enums/
+│       │   │   │       ├── KenhDat.java
+│       │   │   │       ├── LoaiGhe.java
+│       │   │   │       ├── TrangThaiDon.java
+│       │   │   │       ├── TrangThaiPhim.java
+│       │   │   │       ├── TrangThaiSuat.java
+│       │   │   │       ├── TrangThaiVe.java
+│       │   │   │       └── VaiTro.java
+│       │   │   ├── interceptor/
+│       │   │   │   ├── DangNhapInterceptor.java
+│       │   │   │   └── PhanQuyenInterceptor.java
+│       │   │   ├── repository/
+│       │   │   │   ├── DonDatRepository.java
+│       │   │   │   ├── GheRepository.java
+│       │   │   │   ├── NguoiDungRepository.java
+│       │   │   │   ├── PhimRepository.java
+│       │   │   │   ├── PhongChieuRepository.java
+│       │   │   │   ├── SuatChieuRepository.java
+│       │   │   │   ├── TheLoaiRepository.java
+│       │   │   │   └── VeRepository.java
+│       │   │   ├── scheduler/
+│       │   │   │   └── NhaGheScheduler.java
+│       │   │   ├── server/
+│       │   │   │   ├── SoatVeProtocol.java
+│       │   │   │   ├── SoatVeServer.java
+│       │   │   │   └── XuLyClientTask.java
+│       │   │   └── service/
+│       │   │       ├── BanVeService.java
+│       │   │       ├── DatVeService.java
+│       │   │       ├── LichChieuService.java
+│       │   │       ├── LoiTruongException.java
+│       │   │       ├── NguoiDungService.java
+│       │   │       ├── PhimService.java
+│       │   │       ├── PhongChieuService.java
+│       │   │       ├── SoatVeService.java
+│       │   │       ├── SuatChieuService.java
+│       │   │       ├── TheLoaiService.java
+│       │   │       ├── ThongKeService.java
+│       │   │       └── VeService.java
+│       │   └── resources/
+│       │       ├── application.properties.example   (copy ra application.properties cục bộ; nằm trong .gitignore)
+│       │       ├── static/
+│       │       │   ├── css/
+│       │       │   │   └── style.css
+│       │       │   ├── images/
+│       │       │   │   ├── no-poster.svg
+│       │       │   │   └── posters/
+│       │       │   │       ├── default-poster.jpg
+│       │       │   │       ├── hero-banner.jpg
+│       │       │   │       └── phim01.jpg .. phim20.jpg
+│       │       │   └── js/
+│       │       │       └── main.js
+│       │       └── templates/
+│       │           ├── loi.html
+│       │           ├── trang-chu.html
+│       │           ├── admin/
+│       │           │   ├── phim-danh-sach.html
+│       │           │   ├── phim-form.html
+│       │           │   ├── phong-danh-sach.html
+│       │           │   ├── phong-form.html
+│       │           │   ├── suat-danh-sach.html
+│       │           │   ├── suat-form.html
+│       │           │   ├── taikhoan-danh-sach.html
+│       │           │   ├── taikhoan-form.html
+│       │           │   ├── theloai-danh-sach.html
+│       │           │   ├── theloai-form.html
+│       │           │   └── thongke.html
+│       │           ├── auth/
+│       │           │   ├── dang-ky.html
+│       │           │   ├── dang-nhap.html
+│       │           │   └── ho-so.html
+│       │           ├── datve/
+│       │           │   ├── chon-ghe.html
+│       │           │   ├── ket-qua.html
+│       │           │   └── thanh-toan.html
+│       │           ├── fragments/
+│       │           │   ├── footer.html
+│       │           │   ├── header.html
+│       │           │   ├── loi-truong.html
+│       │           │   ├── navbar.html
+│       │           │   ├── phantrang.html
+│       │           │   ├── phieuve.html
+│       │           │   └── phim-card.html
+│       │           ├── lichsu/
+│       │           │   ├── chi-tiet.html
+│       │           │   └── danh-sach.html
+│       │           ├── phim/
+│       │           │   ├── chi-tiet.html
+│       │           │   └── danh-sach.html
+│       │           ├── quay/
+│       │           │   ├── ban-ve.html
+│       │           │   └── ket-qua.html
+│       │           └── tracuu/
+│       │               └── tim-ve.html
+│       └── test/
+│           ├── java/com/qlrapchieuphim/
+│           │   ├── KiemThuChucNangWebMvcTest.java
+│           │   ├── KiemThuDongThoiVaMangTest.java
+│           │   └── QlRapChieuPhimApplicationTests.java
+│           └── resources/
+│               └── application-test.properties
+│
+└── QLRapChieuPhimClient/
+    ├── README.md
+    ├── pom.xml
+    └── src/main/java/com/qlrapchieuphimclient/
+        ├── KiemThuNhieuClient.java
+        └── SoatVeClient.java

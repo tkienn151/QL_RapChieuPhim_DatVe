@@ -64,15 +64,38 @@ public interface DonDatRepository extends JpaRepository<DonDat, Long> {
            "order by d.ngayDat desc")
     List<DonDat> traCuuDon(@Param("tuKhoa") String tuKhoa);
 
-    @Query("select distinct d from DonDat d left join d.nguoiDung nd where " +
-           "(:tuKhoa is null or lower(d.maDon) like lower(concat('%', :tuKhoa, '%')) " +
-           "or lower(d.sdtKhach) like lower(concat('%', :tuKhoa, '%')) " +
-           "or lower(d.hoTenKhach) like lower(concat('%', :tuKhoa, '%')) " +
-           "or (d.kenhDat = com.qlrapchieuphim.entity.enums.KenhDat.WEB and " +
-           "(lower(nd.soDienThoai) like lower(concat('%', :tuKhoa, '%')) " +
-           "or lower(nd.hoTen) like lower(concat('%', :tuKhoa, '%'))))) " +
-           "order by d.ngayDat desc")
+    @Query(value = "select d from DonDat d left join d.nguoiDung nd where " +
+                   "(:tuKhoa is null or lower(d.maDon) like lower(concat('%', :tuKhoa, '%')) " +
+                   "or lower(coalesce(d.sdtKhach, '')) like lower(concat('%', :tuKhoa, '%')) " +
+                   "or lower(coalesce(d.hoTenKhach, '')) like lower(concat('%', :tuKhoa, '%')) " +
+                   "or (d.kenhDat = com.qlrapchieuphim.entity.enums.KenhDat.WEB and " +
+                   "(lower(coalesce(nd.soDienThoai, '')) like lower(concat('%', :tuKhoa, '%')) " +
+                   "or lower(coalesce(nd.hoTen, '')) like lower(concat('%', :tuKhoa, '%')))))",
+           countQuery = "select count(d.id) from DonDat d left join d.nguoiDung nd where " +
+                        "(:tuKhoa is null or lower(d.maDon) like lower(concat('%', :tuKhoa, '%')) " +
+                        "or lower(coalesce(d.sdtKhach, '')) like lower(concat('%', :tuKhoa, '%')) " +
+                        "or lower(coalesce(d.hoTenKhach, '')) like lower(concat('%', :tuKhoa, '%')) " +
+                        "or (d.kenhDat = com.qlrapchieuphim.entity.enums.KenhDat.WEB and " +
+                        "(lower(coalesce(nd.soDienThoai, '')) like lower(concat('%', :tuKhoa, '%')) " +
+                        "or lower(coalesce(nd.hoTen, '')) like lower(concat('%', :tuKhoa, '%')))))")
     Page<DonDat> traCuuDonPhanTrang(@Param("tuKhoa") String tuKhoa, Pageable pageable);
+
+    @Query(value = "select d from DonDat d where d.nguoiDung.id = :nguoiDungId " +
+                   "and (:trangThai is null or d.trangThai = :trangThai) " +
+                   "and (:tuKhoa is null or lower(d.maDon) like lower(concat('%', :tuKhoa, '%')) " +
+                   "or exists (select 1 from Ve v where v.donDat = d and (" +
+                   "lower(v.suatChieu.phim.tenPhim) like lower(concat('%', :tuKhoa, '%')) " +
+                   "or lower(v.suatChieu.phongChieu.tenPhong) like lower(concat('%', :tuKhoa, '%')))))",
+           countQuery = "select count(d.id) from DonDat d where d.nguoiDung.id = :nguoiDungId " +
+                        "and (:trangThai is null or d.trangThai = :trangThai) " +
+                        "and (:tuKhoa is null or lower(d.maDon) like lower(concat('%', :tuKhoa, '%')) " +
+                        "or exists (select 1 from Ve v where v.donDat = d and (" +
+                        "lower(v.suatChieu.phim.tenPhim) like lower(concat('%', :tuKhoa, '%')) " +
+                        "or lower(v.suatChieu.phongChieu.tenPhong) like lower(concat('%', :tuKhoa, '%')))))")
+    Page<DonDat> timLichSuDatVe(@Param("nguoiDungId") Long nguoiDungId,
+                                @Param("trangThai") TrangThaiDon trangThai,
+                                @Param("tuKhoa") String tuKhoa,
+                                Pageable pageable);
 
     @Query("select count(d.id) from DonDat d " +
            "where d.trangThai = com.qlrapchieuphim.entity.enums.TrangThaiDon.DA_THANH_TOAN " +

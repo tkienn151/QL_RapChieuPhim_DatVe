@@ -8,10 +8,30 @@
     <h2 class="mb-3">Tra cứu đơn đặt vé</h2>
 
     <form th:action="@{/tra-cuu}" method="get" class="card card-body shadow-sm mb-4">
-        <div class="d-flex gap-2">
-            <input type="text" name="tuKhoa" class="form-control" th:value="${tuKhoa}" placeholder="Nhập mã đơn, số điện thoại hoặc họ tên khách">
-            <button type="submit" class="btn btn-primary text-nowrap">Tra cứu</button>
-            <a th:href="@{/tra-cuu}" class="btn btn-outline-secondary text-nowrap">Xóa lọc</a>
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-5">
+                <label class="form-label small fw-semibold mb-1">Từ khóa</label>
+                <input type="text" name="tuKhoa" class="form-control" th:value="${tuKhoa}" placeholder="Nhập mã đơn, số điện thoại hoặc họ tên khách">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-semibold mb-1">Sắp xếp</label>
+                <select name="sapXep" class="form-select">
+                    <option value="ngayDat" th:selected="${sapXep == null or sapXep == 'ngayDat'}">Ngày đặt</option>
+                    <option value="tongTien" th:selected="${sapXep == 'tongTien'}">Tổng tiền</option>
+                    <option value="maDon" th:selected="${sapXep == 'maDon'}">Mã đơn</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-semibold mb-1">Thứ tự</label>
+                <select name="tang" class="form-select">
+                    <option value="false" th:selected="${tang == null or !tang}">Giảm dần</option>
+                    <option value="true" th:selected="${tang != null and tang}">Tăng dần</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3 d-flex justify-content-md-end gap-2">
+                <button type="submit" class="btn btn-primary text-nowrap">Tra cứu</button>
+                <a th:href="@{/tra-cuu}" class="btn btn-outline-secondary text-nowrap">Xóa lọc</a>
+            </div>
         </div>
     </form>
 
@@ -93,7 +113,7 @@
                 <td th:text="${#temporals.format(d.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
                 <td th:text="${#numbers.formatDecimal(d.tongTien, 0, 'POINT', 0, 'COMMA')} + ' đ'"></td>
                 <td th:text="${d.trangThai}"></td>
-                <td><a th:href="@{/tra-cuu(maDon=${d.maDon},tuKhoa=${tuKhoa},trang=${page.number})}" class="btn btn-sm btn-outline-primary">Chi tiết</a></td>
+                <td><a th:href="@{/tra-cuu(maDon=${d.maDon},tuKhoa=${tuKhoa},sapXep=${sapXep},tang=${tang},trang=${page.number})}" class="btn btn-sm btn-outline-primary">Chi tiết</a></td>
             </tr>
             <tr th:if="${page.empty}"><td colspan="7" class="text-center text-muted">Không tìm thấy đơn đặt vé nào.</td></tr>
             </tbody>

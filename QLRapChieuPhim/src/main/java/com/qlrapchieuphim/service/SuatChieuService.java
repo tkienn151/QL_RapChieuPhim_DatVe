@@ -11,6 +11,7 @@ import com.qlrapchieuphim.repository.SuatChieuRepository;
 import com.qlrapchieuphim.repository.VeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,27 +47,27 @@ public class SuatChieuService {
             throw new IllegalArgumentException("Thông tin suất chiếu không được để trống.");
         }
         if (phimId == null) {
-            throw new IllegalArgumentException("Vui lòng chọn phim.");
+            throw new LoiTruongException("phimId", "Vui lòng chọn phim.");
         }
         if (phongChieuId == null) {
-            throw new IllegalArgumentException("Vui lòng chọn phòng chiếu.");
+            throw new LoiTruongException("phongChieuId", "Vui lòng chọn phòng chiếu.");
         }
         if (suatChieu.getGioBatDau() == null) {
             throw new LoiTruongException("gioBatDau","Giờ bắt đầu không được để trống.");
         }
         Phim phim = phimRepo.findById(phimId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phim với mã: " + phimId));
+                .orElseThrow(() -> new LoiTruongException("phimId", "Không tìm thấy phim với mã: " + phimId));
         if (phim.getThoiLuong() <= 0) {
-            throw new IllegalArgumentException("Thời lượng phim phải lớn hơn 0 phút.");
+            throw new LoiTruongException("phimId", "Thời lượng phim phải lớn hơn 0 phút.");
         }
         if (phim.getTrangThai() == TrangThaiPhim.NGUNG_CHIEU) {
-            throw new IllegalArgumentException("Phim đã ngừng chiếu, không thể tạo suất.");
+            throw new LoiTruongException("phimId", "Phim đã ngừng chiếu, không thể tạo suất.");
         }
         if (suatChieu.getGioBatDau().isBefore(LocalDateTime.now())) {
             throw new LoiTruongException("gioBatDau","Giờ bắt đầu phải ở tương lai.");
         }
         PhongChieu phongChieu = phongChieuRepo.findById(phongChieuId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng chiếu với mã: " + phongChieuId));
+                .orElseThrow(() -> new LoiTruongException("phongChieuId", "Không tìm thấy phòng chiếu với mã: " + phongChieuId));
         LocalDateTime gioKetThuc = suatChieu.tinhGioKetThuc(phim.getThoiLuong());
         suatChieu.setGioKetThuc(gioKetThuc);
 
@@ -93,10 +94,10 @@ public class SuatChieuService {
             throw new IllegalArgumentException("Thông tin suất chiếu không được để trống.");
         }
         if (phimId == null) {
-            throw new IllegalArgumentException("Vui lòng chọn phim.");
+            throw new LoiTruongException("phimId", "Vui lòng chọn phim.");
         }
         if (phongChieuId == null) {
-            throw new IllegalArgumentException("Vui lòng chọn phòng chiếu.");
+            throw new LoiTruongException("phongChieuId", "Vui lòng chọn phòng chiếu.");
         }
         if (suatMoi.getGioBatDau() == null) {
             throw new LoiTruongException("gioBatDau","Giờ bắt đầu không được để trống.");
@@ -121,12 +122,12 @@ public class SuatChieuService {
             throw new IllegalStateException("Suất đã có vé, không thể đổi phim/phòng/giờ chiếu.");
         }
         Phim phim = phimRepo.findById(phimId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phim với mã: " + phimId));
+                .orElseThrow(() -> new LoiTruongException("phimId", "Không tìm thấy phim với mã: " + phimId));
         if (phim.getThoiLuong() <= 0) {
-            throw new IllegalArgumentException("Thời lượng phim phải lớn hơn 0 phút.");
+            throw new LoiTruongException("phimId", "Thời lượng phim phải lớn hơn 0 phút.");
         }
         if (!hienTai.getPhim().getId().equals(phimId) && phim.getTrangThai() == TrangThaiPhim.NGUNG_CHIEU) {
-            throw new IllegalArgumentException("Phim đã ngừng chiếu, không thể chọn cho suất chiếu.");
+            throw new LoiTruongException("phimId", "Phim đã ngừng chiếu, không thể chọn cho suất chiếu.");
         }
         boolean gioBatDauThayDoi = !hienTai.getGioBatDau().truncatedTo(ChronoUnit.MINUTES)
                 .equals(suatMoi.getGioBatDau().truncatedTo(ChronoUnit.MINUTES));
@@ -134,7 +135,7 @@ public class SuatChieuService {
             throw new LoiTruongException("gioBatDau", "Giờ bắt đầu phải ở tương lai.");
         }
         PhongChieu phongChieu = phongChieuRepo.findById(phongChieuId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng chiếu với mã: " + phongChieuId));
+                .orElseThrow(() -> new LoiTruongException("phongChieuId", "Không tìm thấy phòng chiếu với mã: " + phongChieuId));
         LocalDateTime gioKetThuc = suatMoi.getGioBatDau().plusMinutes(phim.getThoiLuong());
         kiemTraGiaVe(suatMoi.getGiaThuong(), suatMoi.getGiaVip());
         kiemTraXungDot(phongChieuId, suatMoi.getGioBatDau(), gioKetThuc, id);
@@ -226,12 +227,22 @@ public class SuatChieuService {
     }
 
     public Page<SuatChieu> layDanhSachSuatChieu(Long phimId, Long phongId, LocalDate ngay, Pageable pageable) {
-        return layDanhSachSuatChieu(phimId, phongId, ngay, null, pageable);
+        return layDanhSachSuatChieu(null, phimId, phongId, ngay, null, pageable);
     }
     public Page<SuatChieu> layDanhSachSuatChieu(Long phimId, Long phongId, LocalDate ngay, TrangThaiSuat trangThai, Pageable pageable) {
+        return layDanhSachSuatChieu(null, phimId, phongId, ngay, trangThai, pageable);
+    }
+    public Page<SuatChieu> layDanhSachSuatChieu(String tuKhoa, Long phimId, Long phongId, LocalDate ngay, TrangThaiSuat trangThai, Pageable pageable) {
+        String tk = (tuKhoa == null || tuKhoa.isBlank()) ? null : tuKhoa.trim();
         LocalDateTime ngayBatDau = (ngay != null) ? ngay.atStartOfDay() : null;
         LocalDateTime ngayKetThuc = (ngay != null) ? ngay.plusDays(1).atStartOfDay() : null;
-        return suatChieuRepo.timKiemSuatChieu(phimId, phongId, ngayBatDau, ngayKetThuc, trangThai, pageable);
+        return suatChieuRepo.timKiemSuatChieu(tk, phimId, phongId, ngayBatDau, ngayKetThuc, trangThai, pageable);
+    }
+    public List<Phim> layTatCaPhimTheoTen() {
+        return phimRepo.findAll(Sort.by("tenPhim"));
+    }
+    public List<PhongChieu> layTatCaPhongTheoTen() {
+        return phongChieuRepo.findAll(Sort.by("tenPhong"));
     }
     public Page<SuatChieu> timSuatChieu(Long phimId, Long phongId, LocalDate ngay, Pageable pageable) {
         return layDanhSachSuatChieu(phimId, phongId, ngay, pageable);

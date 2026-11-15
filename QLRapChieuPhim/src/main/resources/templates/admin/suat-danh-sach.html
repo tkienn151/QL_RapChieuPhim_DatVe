@@ -28,7 +28,13 @@
         <div class="card-body">
             <form th:action="@{/admin/suat}" method="get" class="row g-3 align-items-end">
 
-                <div class="col-md-3">
+                <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold">Từ khóa</label>
+                    <input type="text" name="tuKhoa" th:value="${tuKhoa}" class="form-control"
+                           placeholder="Tên phim, mã phim hoặc tên phòng...">
+                </div>
+
+                <div class="col-12 col-md-4">
                     <label class="form-label small fw-semibold">Phim</label>
                     <select name="phimId" class="form-select">
                         <option value="">-- Tất cả phim --</option>
@@ -39,7 +45,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12 col-md-4">
                     <label class="form-label small fw-semibold">Phòng chiếu</label>
                     <select name="phongId" class="form-select">
                         <option value="">-- Tất cả phòng chiếu --</option>
@@ -50,12 +56,12 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-6 col-md-3">
                     <label class="form-label small fw-semibold">Ngày chiếu</label>
                     <input type="date" name="ngay" th:value="${ngay}" class="form-control">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-6 col-md-3">
                     <label class="form-label small fw-semibold">Trạng thái</label>
                     <select name="trangThai" class="form-select">
                         <option value="">-- Tất cả trạng thái --</option>
@@ -65,7 +71,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-12 col-md-3">
                     <label class="form-label small fw-semibold">Sắp xếp</label>
                     <div class="input-group">
                         <select name="sapXep" class="form-select">
@@ -73,14 +79,14 @@
                             <option value="giaThuong" th:selected="${sapXep == 'giaThuong'}">Giá thường</option>
                             <option value="giaVip" th:selected="${sapXep == 'giaVip'}">Giá VIP</option>
                         </select>
-                        <select name="tang" class="form-select" style="max-width: 85px;">
+                        <select name="tang" class="form-select" style="max-width: 90px;">
                             <option value="false" th:selected="${tang == null or !tang}">Giảm</option>
                             <option value="true" th:selected="${tang != null and tang}">Tăng</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="col-md-12 d-flex justify-content-end gap-2">
+                <div class="col-12 col-md-3 d-flex justify-content-md-end gap-2">
                     <button type="submit" class="btn btn-primary">🔍 Lọc &amp; Sắp xếp</button>
                     <a th:href="@{/admin/suat}" class="btn btn-outline-secondary" title="Xóa bộ lọc">↺ Xóa lọc</a>
                 </div>

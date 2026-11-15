@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +35,10 @@ public class LichSuController {
     }
     @GetMapping("/lich-su")
     public String danhSach(@RequestParam(defaultValue = "0") int trang,
+                           @RequestParam(required = false) String tuKhoa,
                            @RequestParam(required = false) String trangThai,
+                           @RequestParam(defaultValue = "ngayDat") String sapXep,
+                           @RequestParam(defaultValue = "false") boolean tang,
                            HttpSession session,
                            Model model) {
         NguoiDung nd = PhienDangNhap.layNguoiDung(session);
@@ -42,26 +46,40 @@ public class LichSuController {
             return "redirect:/dang-nhap";
         }
         datVeService.donTatCaGheQuaHan();
-        Pageable pageable = PageRequest.of(Math.max(0, trang), SO_DON_MOI_TRANG);
-        Page<DonDat> page;
-        String duongDan = "/lich-su";
+        String tk = (tuKhoa == null || tuKhoa.isBlank()) ? null : tuKhoa.trim();
+        TrangThaiDon tt = null;
+        String ttTen = null;
         if (trangThai != null && !trangThai.isBlank()) {
             try {
-                TrangThaiDon tt = TrangThaiDon.valueOf(trangThai.trim().toUpperCase());
-                page = veService.layLichSuDatVeTheoTrangThai(nd.getId(), tt, pageable);
-                duongDan = "/lich-su?trangThai=" + URLEncoder.encode(trangThai.trim(), StandardCharsets.UTF_8);
-                model.addAttribute("trangThai", trangThai.trim());
-            } catch (IllegalArgumentException e) {
-                page = veService.layLichSuDatVe(nd.getId(), pageable);
+                tt = TrangThaiDon.valueOf(trangThai.trim().toUpperCase());
+                ttTen = tt.name();
+            } catch (IllegalArgumentException ignored) {
+                tt = null;
             }
-        } else {
-            page = veService.layLichSuDatVe(nd.getId(), pageable);
         }
+        String cot = "tongTien".equals(sapXep) ? "tongTien" : ("maDon".equals(sapXep) ? "maDon" : "ngayDat");
+        Sort.Direction huong = tang ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(huong, cot).and(Sort.by(Sort.Direction.ASC, "id"));
+        Pageable pageable = PageRequest.of(Math.max(0, trang), SO_DON_MOI_TRANG, sort);
+        Page<DonDat> page = veService.timLichSuDatVe(nd.getId(), tk, tt, pageable);
+
         model.addAttribute("page", page);
         model.addAttribute("dsDonDat", page.getContent());
-        model.addAttribute("duongDan", duongDan);
+        model.addAttribute("tuKhoa", tk);
+        model.addAttribute("trangThai", ttTen);
+        model.addAttribute("sapXep", cot);
+        model.addAttribute("tang", tang);
+        model.addAttribute("duongDan", taoDuongDan(tk, ttTen, cot, tang));
         model.addAttribute("dsTrangThai", TrangThaiDon.values());
         return "lichsu/danh-sach";
+    }
+
+    private String taoDuongDan(String tuKhoa, String trangThai, String sapXep, boolean tang) {
+        StringBuilder sb = new StringBuilder("/lich-su?sapXep=").append(sapXep)
+                .append("&tang=").append(tang);
+        if (tuKhoa != null) sb.append("&tuKhoa=").append(URLEncoder.encode(tuKhoa, StandardCharsets.UTF_8));
+        if (trangThai != null) sb.append("&trangThai=").append(URLEncoder.encode(trangThai, StandardCharsets.UTF_8));
+        return sb.toString();
     }
     @GetMapping("/lich-su/chi-tiet")
     public String chiTiet(@RequestParam(required = false) Long id,

@@ -1,66 +1,40 @@
 package com.qlrapchieuphim.controller;
 
 import com.qlrapchieuphim.config.PhienDangNhap;
-import com.qlrapchieuphim.entity.*;
-import com.qlrapchieuphim.repository.*;
 import com.qlrapchieuphim.entity.DonDat;
 import com.qlrapchieuphim.entity.NguoiDung;
 import com.qlrapchieuphim.entity.SuatChieu;
 import com.qlrapchieuphim.entity.enums.TrangThaiDon;
-import com.qlrapchieuphim.repository.DonDatRepository;
-import com.qlrapchieuphim.repository.GheRepository;
-import com.qlrapchieuphim.repository.SuatChieuRepository;
-import com.qlrapchieuphim.repository.VeRepository;
 import com.qlrapchieuphim.service.BanVeService;
-import com.qlrapchieuphim.service.DatVeService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
 @RequestMapping("/quay")
 public class QuayController {
     private final BanVeService banVeService;
-    private final DatVeService datVeService;
-    private final SuatChieuRepository suatChieuRepo;
-    private final GheRepository gheRepo;
-    private final VeRepository veRepo;
-    private final DonDatRepository donDatRepo;
 
-    public QuayController(BanVeService banVeService, DatVeService datVeService, SuatChieuRepository suatChieuRepo,
-                          GheRepository gheRepo, VeRepository veRepo, DonDatRepository donDatRepo) {
+    public QuayController(BanVeService banVeService) {
         this.banVeService = banVeService;
-        this.datVeService = datVeService;
-        this.suatChieuRepo = suatChieuRepo;
-        this.gheRepo = gheRepo;
-        this.veRepo = veRepo;
-        this.donDatRepo = donDatRepo;
     }
 
     @GetMapping("/ban-ve")
     public String manHinhBanVe(@RequestParam(required = false) Long suatId, Model model) {
-        List<SuatChieu> dsSuat = new ArrayList<>(suatChieuRepo.findAll(Sort.by(Sort.Direction.ASC, "gioBatDau")));
-        LocalDateTime bayGio = LocalDateTime.now();
-        dsSuat.removeIf(s -> !s.conMoBan() || !s.getGioKetThuc().isAfter(bayGio));
-
+        List<SuatChieu> dsSuat = banVeService.layDanhSachSuatMoBanTaiQuay();
         model.addAttribute("dsSuat", dsSuat);
 
-        if (suatId != null) {
-            SuatChieu suatChieu = suatChieuRepo.findById(suatId).orElse(null);
-            if (suatChieu != null && suatChieu.conMoBan() && suatChieu.getGioKetThuc().isAfter(bayGio)) {
-                datVeService.donGheQuaHanTheoSuat(suatId);
-                model.addAttribute("suatChieu", suatChieu);
-                model.addAttribute("dsGhe", gheRepo.findByPhongChieuIdOrderByHangAscSoGheAsc(suatChieu.getPhongChieu().getId()));
-                model.addAttribute("dsGheDaDat", veRepo.findGheDaDat(suatId));
-            }
-        }
+        banVeService.chuanBiBanVeChoSuat(suatId).ifPresent(suatChieu -> {
+            model.addAttribute("suatChieu", suatChieu);
+            model.addAttribute("dsGhe", banVeService.layDanhSachGheTheoPhong(suatChieu.getPhongChieu().getId()));
+            model.addAttribute("dsGheDaDat", banVeService.layDanhSachGheDaDat(suatId));
+        });
         return "quay/ban-ve";
     }
 
@@ -89,10 +63,10 @@ public class QuayController {
 
     @GetMapping("/ket-qua")
     public String ketQua(@RequestParam String maDon, Model model, RedirectAttributes ra) {
-        DonDat donDat = donDatRepo.findByMaDon(maDon).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn đặt vé"));
+        DonDat donDat = banVeService.layDonTheoMa(maDon);
         if (donDat.getTrangThai() != TrangThaiDon.DA_THANH_TOAN) {
             ra.addFlashAttribute("loi", "Đơn đặt vé chưa hoàn tất thanh toán.");
-            return "redirect:/tra-cuu?maDon=" + java.net.URLEncoder.encode(donDat.getMaDon(), java.nio.charset.StandardCharsets.UTF_8);
+            return "redirect:/tra-cuu?maDon=" + URLEncoder.encode(donDat.getMaDon(), StandardCharsets.UTF_8);
         }
         model.addAttribute("donDat", donDat);
         return "quay/ket-qua";

@@ -46,6 +46,14 @@ public class VeService {
         return donDatRepo.findByNguoiDungIdAndTrangThaiOrderByNgayDatDesc(nguoiDungId, trangThai, pageable);
     }
     @Transactional(readOnly = true)
+    public Page<DonDat> timLichSuDatVe(Long nguoiDungId, String tuKhoa, TrangThaiDon trangThai, Pageable pageable) {
+        if (nguoiDungId == null) {
+            throw new IllegalArgumentException("Mã người dùng không được để trống");
+        }
+        String tk = (tuKhoa == null || tuKhoa.isBlank()) ? null : tuKhoa.trim();
+        return donDatRepo.timLichSuDatVe(nguoiDungId, trangThai, tk, pageable);
+    }
+    @Transactional(readOnly = true)
     public DonDat layChiTietDonDat(Long donDatId, Long nguoiDungId) {
         if (donDatId == null) {
             throw new IllegalArgumentException("Mã đơn đặt vé không được để trống");

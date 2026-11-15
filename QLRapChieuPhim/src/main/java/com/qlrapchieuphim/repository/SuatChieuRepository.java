@@ -44,23 +44,39 @@ public interface SuatChieuRepository extends JpaRepository<SuatChieu, Long> {
     @Query(value = "select s from SuatChieu s " +
                    "left join fetch s.phim " +
                    "left join fetch s.phongChieu " +
-                   "where (:phimId is null or s.phim.id = :phimId) " +
+                   "where (:tuKhoa is null or lower(s.phim.tenPhim) like lower(concat('%', :tuKhoa, '%')) " +
+                   "   or lower(s.phim.maPhim) like lower(concat('%', :tuKhoa, '%')) " +
+                   "   or lower(s.phongChieu.tenPhong) like lower(concat('%', :tuKhoa, '%'))) " +
+                   "and (:phimId is null or s.phim.id = :phimId) " +
                    "and (:phongId is null or s.phongChieu.id = :phongId) " +
                    "and (:ngayBatDau is null or s.gioBatDau >= :ngayBatDau) " +
                    "and (:ngayKetThuc is null or s.gioBatDau < :ngayKetThuc) " +
                    "and (:trangThai is null or s.trangThai = :trangThai)",
            countQuery = "select count(s) from SuatChieu s " +
-                        "where (:phimId is null or s.phim.id = :phimId) " +
+                        "where (:tuKhoa is null or lower(s.phim.tenPhim) like lower(concat('%', :tuKhoa, '%')) " +
+                        "   or lower(s.phim.maPhim) like lower(concat('%', :tuKhoa, '%')) " +
+                        "   or lower(s.phongChieu.tenPhong) like lower(concat('%', :tuKhoa, '%'))) " +
+                        "and (:phimId is null or s.phim.id = :phimId) " +
                         "and (:phongId is null or s.phongChieu.id = :phongId) " +
                         "and (:ngayBatDau is null or s.gioBatDau >= :ngayBatDau) " +
                         "and (:ngayKetThuc is null or s.gioBatDau < :ngayKetThuc) " +
                         "and (:trangThai is null or s.trangThai = :trangThai)")
-    Page<SuatChieu> timKiemSuatChieu(@Param("phimId") Long phimId,
-                                    @Param("phongId") Long phongId,
-                                    @Param("ngayBatDau") LocalDateTime ngayBatDau,
-                                    @Param("ngayKetThuc") LocalDateTime ngayKetThuc,
-                                    @Param("trangThai") TrangThaiSuat trangThai,
-                                    Pageable pageable);
+    Page<SuatChieu> timKiemSuatChieu(@Param("tuKhoa") String tuKhoa,
+                                     @Param("phimId") Long phimId,
+                                     @Param("phongId") Long phongId,
+                                     @Param("ngayBatDau") LocalDateTime ngayBatDau,
+                                     @Param("ngayKetThuc") LocalDateTime ngayKetThuc,
+                                     @Param("trangThai") TrangThaiSuat trangThai,
+                                     Pageable pageable);
+
+    default Page<SuatChieu> timKiemSuatChieu(Long phimId,
+                                             Long phongId,
+                                             LocalDateTime ngayBatDau,
+                                             LocalDateTime ngayKetThuc,
+                                             TrangThaiSuat trangThai,
+                                             Pageable pageable) {
+        return timKiemSuatChieu(null, phimId, phongId, ngayBatDau, ngayKetThuc, trangThai, pageable);
+    }
 
     @Query("select s from SuatChieu s " +
            "join fetch s.phongChieu " +
